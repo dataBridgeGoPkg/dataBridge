@@ -234,8 +234,6 @@ func RegisterUser(context *gin.Context) {
 	}
 	user.Password = string(hashedPassword)
 
-	fmt.Println(user)
-
 	// Save the user to the database
 	newUser := models.User{
 		FirstName: user.FirstName,

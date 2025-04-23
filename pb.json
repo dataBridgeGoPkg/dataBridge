@@ -1,0 +1,20 @@
+// import productboardPublicApi from '@api/productboard-public-api';
+
+// productboardPublicApi.auth('eyJ0eXAiOiJKV1QiLCJraWQiOiJlOWFmMjUyZjk1YjlhMjA0YTQ5YTcxMWYxY2Y0N2Y2ZjhiNzU0YWNhMTc4YjM2ZDQ2YmM2M2MyMmFiN2IxYWQxIiwiYWxnIjoiUlM1MTIifQ.eyJpYXQiOjE3MTg2OTk3NjksImlzcyI6IjQwMzU3NTgyLWE1ODEtNDBlMC1iYjE2LWRhYzM5N2RkMzhmOCIsInN1YiI6Ijc4ODkxOCIsInJvbGUiOiJhZG1pbiIsImF1ZCI6Imh0dHBzOi8vYXBpLnByb2R1Y3Rib2FyZC5jb20iLCJ1c2VyX2lkIjo3ODg5MTgsInNwYWNlX2lkIjoiMjMwNzQxIn0.d2VJFbZLRGqru73I-QluOe8ZmSG4la928-je-hl2SbrC1J9rWHIKKm0XE8lj4kg43gltaClM-C5nGyV6RwgeQhJdEHJiAp_YOvhbdvdPwoYMTawNcULgWVRYA7kQcy2ryCBdEOxgGTaSvRi18BDskakIki6IwETFZ042YH3P8cimxrryEm1mBHUj7jbAwry-lXsovQ5xf0mnNwAiyT9G6n1Bk3hW8BFIBUWMWeuYzZeVWVLrPP6o9pkuSty0DyD53xQ3NICY-gSzlUwD5w8wDgwboreznkoUjluxoWifgkZPrAVFuQs8VP6ebq8jrkBg2HkJ61eK7adrkeJyNvmV2w');
+// productboardPublicApi.createFeature({
+//   data: {
+//     type: 'feature',
+//     status: {
+//       id: '92047a40-05c8-46cb-bd99-9877f4d4882c'
+//     },
+//     parent: {
+//       product: {
+//         id: '08fe613d-f61b-4f71-b9d5-54ed8c686f91'
+//       }
+//     },
+//     name: 'Sales Coach',
+//     description: '<p>Custom <s>branding</s> for the agent and user portals.</p>'
+//   }
+// }, {'X-Version': '1'})
+//   .then(({ data }) => console.log(data))
+//   .catch(err => console.error(err));

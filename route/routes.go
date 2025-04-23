@@ -12,9 +12,6 @@ func RegisterRoutes(router *gin.Engine) {
 	router.POST("/register", controller.RegisterUser)
 	router.POST("/login", controller.LoginUser)
 
-	//router.POST("/test", controller.TestProductBoardAPI)
-	router.POST("/productBoard", controller.CreateProductBoardFeature)
-
 	// Protected routes
 	protected := router.Group("/")
 	protected.Use(middleware.AuthMiddleware())
@@ -39,5 +36,8 @@ func RegisterRoutes(router *gin.Engine) {
 		protected.PUT("/updateFeatureRequest/:id", controller.UpdateFeatureRequestByID)
 		protected.DELETE("/deleteFeatureRequest/:id", controller.DeleteFeatureRequestByID)
 		protected.GET("/getAllFeatureRequests", controller.GetAllFeatureRequests)
+
+		//router.POST("/test", controller.TestProductBoardAPI)
+		protected.POST("/productBoard", controller.CreateProductBoardFeature)
 	}
 }

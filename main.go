@@ -30,8 +30,6 @@ func main() {
 		log.Fatal("JWT_SECRET is not set in the environment")
 	}
 
-	fmt.Println("JWT Secret Key Loaded Successfully")
-
 	// Initialize the database
 	models.Init()
 	initConfig()

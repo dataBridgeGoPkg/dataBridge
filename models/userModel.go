@@ -5,18 +5,37 @@ import (
 	"time"
 )
 
+// Role represents the possible roles a user can have
+type Role string
+
+const (
+	Admin     Role = "ADMIN"
+	Developer Role = "Developer"
+	Viewer    Role = "VIEWER"
+)
+
+func (r Role) IsValid() bool {
+	switch r {
+	case Admin, Developer, Viewer:
+		return true
+	default:
+		return false
+	}
+}
+
 // User represents a user in the system
 type User struct {
 	ID        int64  `json:"id"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	EmailId   string `json:"email_id"`
-	Password  string `json:"-"` // Exclude from JSON responses
+	Role      Role   `json:"role,omitempty"`
+	Password  string `json:"-"`
 	CreatedAt int64  `json:"created_at"`
 	UpdatedAt int64  `json:"updated_at"`
 }
 
-// CreateUsersTable creates the users table with BIGINT timestamps
+// CreateUsersTable creates the users table with BIGINT timestamps and a role column
 func CreateUsersTable(db *sql.DB) error {
 	query := `
     CREATE TABLE IF NOT EXISTS users (
@@ -25,6 +44,7 @@ func CreateUsersTable(db *sql.DB) error {
         last_name VARCHAR(255) NOT NULL,
         email_id VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
+        role VARCHAR(50) NOT NULL,
         created_at BIGINT NOT NULL,
         updated_at BIGINT NOT NULL
     );`
@@ -40,10 +60,10 @@ func CreateUser(db *sql.DB, user *User) error {
 	user.UpdatedAt = now
 
 	query := `
-	INSERT INTO users (first_name, last_name, email_id, password, created_at, updated_at)
-	VALUES (?, ?, ?, ?, ?, ?)`
+	INSERT INTO users (first_name, last_name, email_id, password, role, created_at, updated_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?)`
 
-	result, err := db.Exec(query, user.FirstName, user.LastName, user.EmailId, user.Password, user.CreatedAt, user.UpdatedAt)
+	result, err := db.Exec(query, user.FirstName, user.LastName, user.EmailId, user.Password, user.Role, user.CreatedAt, user.UpdatedAt)
 	if err != nil {
 		return err
 	}
@@ -55,7 +75,7 @@ func CreateUser(db *sql.DB, user *User) error {
 // GetUserByID retrieves a user by their ID
 func GetUserByID(db *sql.DB, id int64) (*User, error) {
 	query := `
-	SELECT id, first_name, last_name, email_id, created_at, updated_at
+	SELECT id, first_name, last_name, email_id, role, created_at, updated_at
 	FROM users
 	WHERE id = ?`
 
@@ -65,6 +85,7 @@ func GetUserByID(db *sql.DB, id int64) (*User, error) {
 		&user.FirstName,
 		&user.LastName,
 		&user.EmailId,
+		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -74,12 +95,12 @@ func GetUserByID(db *sql.DB, id int64) (*User, error) {
 	return user, nil
 }
 
-// Get user by email
+// GetUserByEmail retrieves a user by their email address
 func GetUserByEmail(db *sql.DB, email string) (*User, error) {
 	query := `
-		SELECT id, first_name, last_name, email_id, password, created_at, updated_at
-		FROM users
-		WHERE email_id = ?`
+	SELECT id, first_name, last_name, email_id, password, role, created_at, updated_at
+	FROM users
+	WHERE email_id = ?`
 
 	user := &User{}
 	err := db.QueryRow(query, email).Scan(
@@ -88,6 +109,7 @@ func GetUserByEmail(db *sql.DB, email string) (*User, error) {
 		&user.LastName,
 		&user.EmailId,
 		&user.Password,
+		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -103,10 +125,10 @@ func UpdateUser(db *sql.DB, user *User) error {
 
 	query := `
 	UPDATE users
-	SET first_name = ?, last_name = ?, email_id = ?, updated_at = ?
+	SET first_name = ?, last_name = ?, email_id = ?, role = ?, updated_at = ?
 	WHERE id = ?`
 
-	_, err := db.Exec(query, user.FirstName, user.LastName, user.EmailId, user.UpdatedAt, user.ID)
+	_, err := db.Exec(query, user.FirstName, user.LastName, user.EmailId, user.Role, user.UpdatedAt, user.ID)
 	return err
 }
 
@@ -120,7 +142,7 @@ func DeleteUser(db *sql.DB, id int64) error {
 // GetAllUsers retrieves all users from the database
 func GetAllUsers(db *sql.DB) ([]*User, error) {
 	query := `
-	SELECT id, first_name, last_name, email_id, created_at, updated_at
+	SELECT id, first_name, last_name, email_id, role, created_at, updated_at
 	FROM users`
 
 	rows, err := db.Query(query)
@@ -137,6 +159,7 @@ func GetAllUsers(db *sql.DB) ([]*User, error) {
 			&user.FirstName,
 			&user.LastName,
 			&user.EmailId,
+			&user.Role,
 			&user.CreatedAt,
 			&user.UpdatedAt,
 		)

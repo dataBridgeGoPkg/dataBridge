@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -13,27 +12,24 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func init() {
-	// Load .env file
 	if err := godotenv.Load(); err != nil {
 		panic("Error loading .env file")
 	}
-} // Load secret key from environment
-
-//var jwtSecret = []byte("nfg4PZJ3RTh/xjShEc/XDMYgGA36OrIwV+Z9eTQZFzY=")
+}
 
 type users struct {
-	ID        int64  `json:"id,omitempty"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	EmailId   string `json:"email_id,omitempty"`
-	CreatedAt int64  `json:"created_at,omitempty"` // Unix timestamp
-	UpdatedAt int64  `json:"updated_at,omitempty"` // Unix timestamp
+	ID        int64       `json:"id,omitempty"`
+	FirstName string      `json:"first_name,omitempty"`
+	LastName  string      `json:"last_name,omitempty"`
+	EmailId   string      `json:"email_id,omitempty"`
+	Role      models.Role `json:"role,omitempty"`
+	CreatedAt int64       `json:"created_at,omitempty"`
+	UpdatedAt int64       `json:"updated_at,omitempty"`
 }
 
 func CreateUsers(context *gin.Context) {
@@ -44,11 +40,17 @@ func CreateUsers(context *gin.Context) {
 		return
 	}
 
+	if !user.Role.IsValid() {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
+		return
+	}
+
 	newUser := models.User{
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		EmailId:   user.EmailId,
 		Password:  user.Password,
+		Role:      user.Role,
 	}
 
 	if err := models.CreateUser(models.DB, &newUser); err != nil {
@@ -57,19 +59,19 @@ func CreateUsers(context *gin.Context) {
 	}
 
 	response := users{
-		ID:        user.ID,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		EmailId:   user.EmailId,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		ID:        newUser.ID,
+		FirstName: newUser.FirstName,
+		LastName:  newUser.LastName,
+		EmailId:   newUser.EmailId,
+		Role:      newUser.Role,
+		CreatedAt: newUser.CreatedAt,
+		UpdatedAt: newUser.UpdatedAt,
 	}
 
 	context.JSON(http.StatusCreated, response)
 }
 
 func GetUsersByID(context *gin.Context) {
-
 	id := context.Param("id")
 	userID := utils.ParseID(id)
 	if userID == 0 {
@@ -77,15 +79,13 @@ func GetUsersByID(context *gin.Context) {
 		return
 	}
 
-	//Check if the User exists
 	user, err := models.GetUserByID(models.DB, userID)
-	if user == nil {
-		context.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
-	}
-
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+	if user == nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
@@ -94,14 +94,22 @@ func GetUsersByID(context *gin.Context) {
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		EmailId:   user.EmailId,
+		Role:      user.Role,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
-
 	context.JSON(http.StatusOK, response)
 }
 
 func UpdateUsers(context *gin.Context) {
+
+	type UpdateUserInput struct {
+		FirstName *string `json:"first_name"`
+		LastName  *string `json:"last_name"`
+		EmailId   *string `json:"email_id"`
+		Role      *string `json:"role"`
+	}
+
 	userID := context.Param("id")
 	userIDInt := utils.ParseID(userID)
 	if userIDInt == 0 {
@@ -109,46 +117,63 @@ func UpdateUsers(context *gin.Context) {
 		return
 	}
 
-	// Check if the User exists
-	checkUser, err := models.GetUserByID(models.DB, userIDInt)
-	if checkUser == nil {
+	// Get existing user from DB
+	existingUser, err := models.GetUserByID(models.DB, userIDInt)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+	if existingUser == nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
-		return
-	}
-	// Read the request body
-	body, err := io.ReadAll(context.Request.Body)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-		return
-	}
 
-	// Unmarshal the JSON body into the User struct
-	var user models.User
-	if err := json.Unmarshal(body, &user); err != nil {
+	var input UpdateUserInput
+	if err := context.ShouldBindJSON(&input); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
 		return
 	}
-	// Update the user ID
-	user.ID = userIDInt
-	// Update the user in the database
-	if err := models.UpdateUser(models.DB, &user); err != nil {
+
+	// Merge provided fields into the existing user
+	if input.FirstName != nil {
+		existingUser.FirstName = *input.FirstName
+	}
+	if input.LastName != nil {
+		existingUser.LastName = *input.LastName
+	}
+	if input.EmailId != nil {
+		existingUser.EmailId = *input.EmailId
+	}
+	if input.Role != nil {
+		if *input.Role == "" {
+			context.JSON(http.StatusBadRequest, gin.H{"error": "Role is not defined"})
+			return
+		}
+
+		role := models.Role(*input.Role)
+		if !role.IsValid() {
+			context.JSON(http.StatusBadRequest, gin.H{"error": "Not a valid role"})
+			return
+		}
+		existingUser.Role = models.Role(*input.Role)
+	}
+
+	// Update in DB
+	if err := models.UpdateUser(models.DB, existingUser); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
 		return
 	}
+
 	response := users{
-		ID:        user.ID,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		EmailId:   user.EmailId,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		ID:        existingUser.ID,
+		FirstName: existingUser.FirstName,
+		LastName:  existingUser.LastName,
+		EmailId:   existingUser.EmailId,
+		Role:      existingUser.Role,
+		CreatedAt: existingUser.CreatedAt,
+		UpdatedAt: existingUser.UpdatedAt,
 	}
 	context.JSON(http.StatusOK, response)
-
 }
 
 func DeleteUsers(context *gin.Context) {
@@ -158,18 +183,17 @@ func DeleteUsers(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
 	}
-	//Check if the User exists
+
 	user, err := models.GetUserByID(models.DB, userID)
-	if user == nil {
-		context.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
-	}
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
 		return
 	}
+	if user == nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
 
-	// Delete the user
 	if err := models.DeleteUser(models.DB, userID); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
 		return
@@ -192,6 +216,7 @@ func GetAllUsers(context *gin.Context) {
 			FirstName: user.FirstName,
 			LastName:  user.LastName,
 			EmailId:   user.EmailId,
+			Role:      user.Role,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
 		})
@@ -201,12 +226,12 @@ func GetAllUsers(context *gin.Context) {
 }
 
 func RegisterUser(context *gin.Context) {
-
 	type registerUser struct {
-		FirstName string `json:"first_name"`
-		LastName  string `json:"last_name"`
-		EmailId   string `json:"email_id"`
-		Password  string `json:"password"`
+		FirstName string      `json:"first_name"`
+		LastName  string      `json:"last_name"`
+		EmailId   string      `json:"email_id"`
+		Password  string      `json:"password"`
+		Role      models.Role `json:"role"`
 	}
 
 	body, err := io.ReadAll(context.Request.Body)
@@ -220,26 +245,28 @@ func RegisterUser(context *gin.Context) {
 		return
 	}
 
-	// Validate required fields
 	if user.EmailId == "" || user.Password == "" {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Email and password are required"})
 		return
 	}
 
-	// Hash the password
+	if !user.Role.IsValid() {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
+		return
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
 		return
 	}
-	user.Password = string(hashedPassword)
 
-	// Save the user to the database
 	newUser := models.User{
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		EmailId:   user.EmailId,
-		Password:  user.Password,
+		Password:  string(hashedPassword),
+		Role:      user.Role,
 	}
 
 	if err := models.CreateUser(models.DB, &newUser); err != nil {
@@ -251,7 +278,6 @@ func RegisterUser(context *gin.Context) {
 }
 
 func LoginUser(context *gin.Context) {
-	//Get the JWT token secret from the environment variable
 	var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 	var input struct {
@@ -264,42 +290,34 @@ func LoginUser(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
-	err = json.Unmarshal(body, &input)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+	if err := json.Unmarshal(body, &input); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
 		return
 	}
 
-	// Validate the input
 	if input.Email == "" || input.Password == "" {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Email and password are required"})
 		return
 	}
 
-	fmt.Println(input.Email)
-
-	// Fetch the user by email
-	user, err := models.GetUserByEmail(models.DB, input.Email) // Ensure GetUserByEmail accepts a string argument
+	user, err := models.GetUserByEmail(models.DB, input.Email)
 	if err != nil || user == nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
 	}
 
-	fmt.Println(user)
-
-	// Compare the hashed password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
 	}
 
-	// Generate a JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(), // Token expires in 24 hours
+		"role":    user.Role,
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
 	})
+
 	tokenString, err := token.SignedString(jwtSecret)
-	fmt.Println("Login: ", jwtSecret)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return

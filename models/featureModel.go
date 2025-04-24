@@ -58,6 +58,66 @@ func CreateFeaturesTable(db *sql.DB) error {
 	return err
 }
 
+type FeatureModelWithUserName struct {
+	ID            int64
+	Title         string
+	Description   string
+	Status        string
+	StartTime     sql.NullString
+	EndTime       sql.NullString
+	Notes         string
+	AssignedUser  int64
+	UserFirstName string
+	UserLastName  string
+	CreatedAt     int64
+	UpdatedAt     int64
+}
+
+func GetAllFeaturesWithUserName(db *sql.DB) ([]*FeatureModelWithUserName, error) {
+	query := `
+	SELECT 
+		f.id, f.title, f.description, f.status, f.start_time, f.end_time,
+		f.notes, f.assigned_user_id, u.first_name, u.last_name, f.created_at, f.updated_at
+	FROM features f
+	LEFT JOIN users u ON f.assigned_user_id = u.id
+	`
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var features []*FeatureModelWithUserName
+	for rows.Next() {
+		feature := &FeatureModelWithUserName{}
+		err := rows.Scan(
+			&feature.ID,
+			&feature.Title,
+			&feature.Description,
+			&feature.Status,
+			&feature.StartTime,
+			&feature.EndTime,
+			&feature.Notes,
+			&feature.AssignedUser,
+			&feature.UserFirstName,
+			&feature.UserLastName,
+			&feature.CreatedAt,
+			&feature.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		features = append(features, feature)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return features, nil
+}
+
 func CreateFeature(db *sql.DB, feature *Feature) error {
 	if !feature.Status.IsValid() {
 		return errors.New("invalid status value")

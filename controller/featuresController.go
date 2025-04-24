@@ -242,3 +242,28 @@ func GetAllFeatures(c *gin.Context) {
 	// Return the response
 	c.JSON(http.StatusOK, responses)
 }
+
+func GetAllFeaturesWithUserName(c *gin.Context) {
+	features, err := models.GetAllFeaturesWithUserName(models.DB)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+
+	var responses []models.FeatureModelWithUserName
+	for _, f := range features {
+		responses = append(responses, models.FeatureModelWithUserName{
+			ID:           f.ID,
+			Title:        f.Title,
+			Description:  f.Description,
+			Status:       f.Status,
+			StartTime:    f.StartTime,
+			EndTime:      f.EndTime,
+			Notes:        f.Notes,
+			AssignedUser: f.AssignedUser,
+			CreatedAt:    f.CreatedAt,
+			UpdatedAt:    f.UpdatedAt,
+		})
+	}
+	c.JSON(http.StatusOK, responses)
+}

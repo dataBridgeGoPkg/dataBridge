@@ -15,9 +15,9 @@ type FeatureRequest struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`
 	Accepted    bool   `json:"accepted" binding:"required"`
+	RequestedBy string `json:"requested_by,omitempty"`
 	CreatedAt   int64  `json:"created_at,omitempty"` // Unix timestamp
 	UpdatedAt   int64  `json:"updated_at,omitempty"` // Unix timestamp
-
 }
 
 type FeatureRequestResponse struct {
@@ -25,6 +25,7 @@ type FeatureRequestResponse struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Accepted    bool   `json:"accepted"`
+	RequestedBy string `json:"requested_by,omitempty"`
 	CreatedAt   int64  `json:"created_at"`
 	UpdatedAt   int64  `json:"updated_at"`
 }
@@ -36,7 +37,6 @@ func CreateFeatureRequest(c *gin.Context) {
 		return
 	}
 
-	// Unmarshal the body into the FeatureRequest struct
 	var featureRequest FeatureRequest
 	err = json.Unmarshal(body, &featureRequest)
 	if err != nil {
@@ -44,16 +44,16 @@ func CreateFeatureRequest(c *gin.Context) {
 		return
 	}
 
-	// Validate the request
 	if featureRequest.Title == "" || featureRequest.Description == "" {
 		c.JSON(400, gin.H{"error": "Title and Description are required"})
 		return
 	}
-	// Create a new FeatureRequest object
+
 	featureRequestModel := models.FeatureRequestModel{
 		Title:       featureRequest.Title,
 		Description: featureRequest.Description,
 		Accepted:    featureRequest.Accepted,
+		RequestedBy: featureRequest.RequestedBy,
 	}
 
 	if err := models.CreateFeatureRequest(models.DB, &featureRequestModel); err != nil {
@@ -66,12 +66,12 @@ func CreateFeatureRequest(c *gin.Context) {
 		Title:       featureRequestModel.Title,
 		Description: featureRequestModel.Description,
 		Accepted:    featureRequestModel.Accepted,
+		RequestedBy: featureRequestModel.RequestedBy,
 		CreatedAt:   featureRequestModel.CreatedAt,
 		UpdatedAt:   featureRequestModel.UpdatedAt,
 	}
 
 	c.JSON(http.StatusCreated, response)
-
 }
 
 func GetFeatureRequestByID(c *gin.Context) {
@@ -94,59 +94,82 @@ func GetFeatureRequestByID(c *gin.Context) {
 		Title:       getFeatureRequest.Title,
 		Description: getFeatureRequest.Description,
 		Accepted:    getFeatureRequest.Accepted,
+		RequestedBy: getFeatureRequest.RequestedBy,
 		CreatedAt:   getFeatureRequest.CreatedAt,
 		UpdatedAt:   getFeatureRequest.UpdatedAt,
 	}
 	c.JSON(http.StatusOK, response)
-
 }
 
 func UpdateFeatureRequestByID(c *gin.Context) {
-	iD := c.Param("id")
-	featureID := utils.ParseID(iD)
+	type UpdateFeatureRequestInput struct {
+		Title       *string `json:"title"`
+		Description *string `json:"description"`
+		Accepted    *bool   `json:"accepted"`
+		RequestedBy *string `json:"requested_by"`
+	}
+
+	// Parse feature request ID
+	id := c.Param("id")
+	featureID := utils.ParseID(id)
 	if featureID == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid feature request ID"})
 		return
 	}
-	// Check if the FeatureRequest exists
-	checkFeatureRequest, err := models.FetchFeatureRequestByID(models.DB, featureID)
-	if checkFeatureRequest == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Feature not found"})
-		return
-	} else if err != nil {
+
+	// Fetch existing feature request
+	existingFeatureRequest, err := models.FetchFeatureRequestByID(models.DB, featureID)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
 		return
 	}
-	var featureRequest FeatureRequest
-	err = c.BindJSON(&featureRequest)
-	if err != nil {
+	if existingFeatureRequest == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Feature request not found"})
+		return
+	}
+
+	// Bind input
+	var input UpdateFeatureRequestInput
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
 		return
 	}
-	// Validate the request
-	if featureRequest.Title == "" || featureRequest.Description == "" {
+
+	// Merge fields
+	if input.Title != nil {
+		existingFeatureRequest.Title = *input.Title
+	}
+	if input.Description != nil {
+		existingFeatureRequest.Description = *input.Description
+	}
+	if input.Accepted != nil {
+		existingFeatureRequest.Accepted = *input.Accepted
+	}
+	if input.RequestedBy != nil {
+		existingFeatureRequest.RequestedBy = *input.RequestedBy
+	}
+
+	// Validate required fields
+	if existingFeatureRequest.Title == "" || existingFeatureRequest.Description == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Title and Description are required"})
 		return
 	}
-	// Update the FeatureRequest object with the new values
-	featureRequestModel := models.FeatureRequestModel{
-		ID:          featureID,
-		Title:       featureRequest.Title,
-		Description: featureRequest.Description,
-		Accepted:    featureRequest.Accepted,
-	}
-	err = models.UpdateFeatureRequestByID(models.DB, &featureRequestModel)
-	if err != nil {
+
+	// Update in DB
+	if err := models.UpdateFeatureRequestByID(models.DB, existingFeatureRequest); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
 		return
 	}
+
+	// Return updated response
 	response := FeatureRequestResponse{
-		ID:          featureRequestModel.ID,
-		Title:       featureRequestModel.Title,
-		Description: featureRequestModel.Description,
-		Accepted:    featureRequestModel.Accepted,
-		CreatedAt:   featureRequestModel.CreatedAt,
-		UpdatedAt:   featureRequestModel.UpdatedAt,
+		ID:          existingFeatureRequest.ID,
+		Title:       existingFeatureRequest.Title,
+		Description: existingFeatureRequest.Description,
+		Accepted:    existingFeatureRequest.Accepted,
+		RequestedBy: existingFeatureRequest.RequestedBy,
+		CreatedAt:   existingFeatureRequest.CreatedAt,
+		UpdatedAt:   existingFeatureRequest.UpdatedAt,
 	}
 	c.JSON(http.StatusOK, response)
 }
@@ -158,7 +181,6 @@ func DeleteFeatureRequestByID(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid feature request ID"})
 		return
 	}
-	// Check if the FeatureRequest exists
 	checkFeatureRequest, err := models.FetchFeatureRequestByID(models.DB, featureID)
 	if checkFeatureRequest == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Feature not found"})
@@ -176,14 +198,12 @@ func DeleteFeatureRequestByID(c *gin.Context) {
 }
 
 func GetAllFeatureRequests(c *gin.Context) {
-	// Fetch all features from the database
 	features, err := models.FetchAllFeatureRequests(models.DB)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
 		return
 	}
 
-	// Prepare the response
 	var responses []FeatureRequestResponse
 	for _, f := range features {
 		responses = append(responses, FeatureRequestResponse{
@@ -191,11 +211,11 @@ func GetAllFeatureRequests(c *gin.Context) {
 			Title:       f.Title,
 			Description: f.Description,
 			Accepted:    f.Accepted,
+			RequestedBy: f.RequestedBy,
 			CreatedAt:   f.CreatedAt,
 			UpdatedAt:   f.UpdatedAt,
 		})
 	}
 
-	// Return the response
 	c.JSON(http.StatusOK, responses)
 }

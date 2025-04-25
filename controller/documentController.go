@@ -87,41 +87,60 @@ func GetDocumentByID(c *gin.Context) {
 }
 
 func UpdateDocumentById(c *gin.Context) {
+	type UpdateDocumentInput struct {
+		Name        *string `json:"name"`
+		Description *string `json:"description"`
+		URL         *string `json:"url"`
+	}
+
+	// Parse and validate document ID
 	id := c.Param("id")
 	documentID := utils.ParseID(id)
-	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Document ID is required"})
+	if documentID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid document ID"})
 		return
 	}
 
-	//Check if the document exists
-	document, err := models.GetDocumentByID(models.DB, documentID)
-	if document == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Document not found"})
-		return
-	} else if err != nil {
+	// Check if the document exists
+	existingDocument, err := models.GetDocumentByID(models.DB, documentID)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
 		return
 	}
-	// Parse the request body
-	var updatedDocument models.Document
-	err = c.BindJSON(&updatedDocument)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+	if existingDocument == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Document not found"})
 		return
 	}
-	// Update the document in your database or storage system
-	err = models.UpdateDocument(models.DB, &updatedDocument)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update document"})
+
+	// Bind the input JSON
+	var input UpdateDocumentInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON", "details": err.Error()})
 		return
 	}
-	// Return the updated document as a response
+
+	// Merge updates into the existing document
+	if input.Name != nil {
+		existingDocument.Name = *input.Name
+	}
+	if input.Description != nil {
+		existingDocument.Description = input.Description
+	}
+	if input.URL != nil {
+		existingDocument.URL = *input.URL
+	}
+
+	// Save updated document
+	if err := models.UpdateDocument(models.DB, existingDocument); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update document", "details": err.Error()})
+		return
+	}
+
+	// Return updated response
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "Document updated successfully",
-		"document": updatedDocument,
+		"document": existingDocument,
 	})
-
 }
 
 func DeleteDocumentById(c *gin.Context) {

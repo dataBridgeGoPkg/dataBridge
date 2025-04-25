@@ -165,50 +165,86 @@ func DeletFeatureById(c *gin.Context) {
 }
 
 func UpdateFeatureById(c *gin.Context) {
+
+	type UpdateFeatureInput struct {
+		Title        *string `json:"title"`
+		Description  *string `json:"description"`
+		Status       *string `json:"status"`
+		StartTime    *int64  `json:"start_time"`
+		EndTime      *int64  `json:"end_time"`
+		Notes        *string `json:"notes"`
+		AssignedUser *int64  `json:"assigned_user"`
+	}
+
+	// Parse feature ID
 	id := c.Param("id")
 	featureID := utils.ParseID(id)
 	if featureID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid feature ID"})
 		return
 	}
-	//Check if the Feature exists
-	getFeature, err := models.GetFeatureByID(models.DB, featureID)
-	if getFeature == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Feature not found"})
-		return
-	}
+
+	// Check if feature exists
+	existingFeature, err := models.GetFeatureByID(models.DB, featureID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
 		return
 	}
-	// Read the request body and unmarshal it into the FeatureRequest struct
-	var feature models.Feature
-	if err := c.ShouldBindJSON(&feature); err != nil {
+	if existingFeature == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Feature not found"})
+		return
+	}
+
+	// Bind input
+	var input UpdateFeatureInput
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON", "details": err.Error()})
 		return
 	}
 
-	fmt.Println(feature)
-	//Update the feauture ID
-	feature.ID = featureID
+	// Merge updates into existing feature
+	if input.Title != nil {
+		existingFeature.Title = *input.Title
+	}
+	if input.Description != nil {
+		existingFeature.Description = *input.Description
+	}
+	if input.Status != nil {
+		existingFeature.Status = models.StatusType(*input.Status)
+	}
+	if input.StartTime != nil {
+		startTimeStr := fmt.Sprintf("%d", *input.StartTime)
+		existingFeature.StartTime = &startTimeStr
+	}
+	if input.EndTime != nil {
+		endTimeStr := fmt.Sprintf("%d", *input.EndTime)
+		existingFeature.EndTime = &endTimeStr
+	}
+	if input.Notes != nil {
+		existingFeature.Notes = input.Notes
+	}
+	if input.AssignedUser != nil {
+		existingFeature.AssignedUser = input.AssignedUser
+	}
 
-	// Update the user in the database
-	if err := models.UpdateFeature(models.DB, &feature); err != nil {
+	// Update in DB
+	if err := models.UpdateFeature(models.DB, existingFeature); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
 		return
 	}
 
+	// Response
 	updateResponse := response{
-		ID:           feature.ID,
-		Title:        feature.Title,
-		Description:  feature.Description,
-		Status:       feature.Status,
-		StartTime:    feature.StartTime,
-		EndTime:      feature.EndTime,
-		Notes:        feature.Notes,
-		AssignedUser: feature.AssignedUser,
-		CreatedAt:    feature.CreatedAt,
-		UpdatedAt:    feature.UpdatedAt,
+		ID:           existingFeature.ID,
+		Title:        existingFeature.Title,
+		Description:  existingFeature.Description,
+		Status:       existingFeature.Status,
+		StartTime:    existingFeature.StartTime,
+		EndTime:      existingFeature.EndTime,
+		Notes:        existingFeature.Notes,
+		AssignedUser: existingFeature.AssignedUser,
+		CreatedAt:    existingFeature.CreatedAt,
+		UpdatedAt:    existingFeature.UpdatedAt,
 	}
 
 	c.JSON(http.StatusOK, updateResponse)
@@ -251,6 +287,7 @@ func GetAllFeaturesWithUserName(c *gin.Context) {
 	}
 
 	var responses []models.FeatureModelWithUserName
+
 	for _, f := range features {
 		responses = append(responses, models.FeatureModelWithUserName{
 			ID:           f.ID,

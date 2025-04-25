@@ -10,7 +10,7 @@ type Role string
 
 const (
 	Admin     Role = "ADMIN"
-	Developer Role = "Developer"
+	Developer Role = "DEVELOPER"
 	Viewer    Role = "VIEWER"
 )
 

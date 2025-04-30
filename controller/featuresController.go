@@ -290,16 +290,18 @@ func GetAllFeaturesWithUserName(c *gin.Context) {
 
 	for _, f := range features {
 		responses = append(responses, models.FeatureModelWithUserName{
-			ID:           f.ID,
-			Title:        f.Title,
-			Description:  f.Description,
-			Status:       f.Status,
-			StartTime:    f.StartTime,
-			EndTime:      f.EndTime,
-			Notes:        f.Notes,
-			AssignedUser: f.AssignedUser,
-			CreatedAt:    f.CreatedAt,
-			UpdatedAt:    f.UpdatedAt,
+			ID:            f.ID,
+			Title:         f.Title,
+			Description:   f.Description,
+			Status:        f.Status,
+			StartTime:     f.StartTime,
+			EndTime:       f.EndTime,
+			Notes:         f.Notes,
+			AssignedUser:  f.AssignedUser,
+			UserFirstName: f.UserFirstName,
+			UserLastName:  f.UserLastName,
+			CreatedAt:     f.CreatedAt,
+			UpdatedAt:     f.UpdatedAt,
 		})
 	}
 	c.JSON(http.StatusOK, responses)

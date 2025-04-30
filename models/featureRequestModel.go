@@ -7,13 +7,13 @@ import (
 
 // FeatureRequestModel represents a feature request in the system
 type FeatureRequestModel struct {
-	ID          int64  `json:"id,omitempty"`
-	Title       string `json:"title,omitempty"`
-	Description string `json:"description,omitempty"`
-	Accepted    bool   `json:"accepted,omitempty"`
-	RequestedBy string `json:"requested_by,omitempty"` // Optional field for the user who requested the feature
-	CreatedAt   int64  `json:"created_at,omitempty"`   // Unix timestamp
-	UpdatedAt   int64  `json:"updated_at,omitempty"`   // Unix timestamp
+	ID          int64   `json:"id,omitempty"`
+	Title       string  `json:"title,omitempty"`
+	Description string  `json:"description,omitempty"`
+	Accepted    bool    `json:"accepted,omitempty"`
+	RequestedBy *string `json:"requested_by,omitempty"` // Optional field for the user who requested the feature
+	CreatedAt   int64   `json:"created_at,omitempty"`   // Unix timestamp
+	UpdatedAt   int64   `json:"updated_at,omitempty"`   // Unix timestamp
 }
 
 // CreateFeatureRequestTable creates the feature_requests table if it doesn't exist

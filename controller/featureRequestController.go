@@ -21,13 +21,13 @@ type FeatureRequest struct {
 }
 
 type FeatureRequestResponse struct {
-	ID          int64  `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Accepted    bool   `json:"accepted"`
-	RequestedBy string `json:"requested_by,omitempty"`
-	CreatedAt   int64  `json:"created_at"`
-	UpdatedAt   int64  `json:"updated_at"`
+	ID          int64   `json:"id"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Accepted    bool    `json:"accepted"`
+	RequestedBy *string `json:"requested_by,omitempty"`
+	CreatedAt   int64   `json:"created_at"`
+	UpdatedAt   int64   `json:"updated_at"`
 }
 
 func CreateFeatureRequest(c *gin.Context) {
@@ -53,7 +53,7 @@ func CreateFeatureRequest(c *gin.Context) {
 		Title:       featureRequest.Title,
 		Description: featureRequest.Description,
 		Accepted:    featureRequest.Accepted,
-		RequestedBy: featureRequest.RequestedBy,
+		RequestedBy: &featureRequest.RequestedBy,
 	}
 
 	if err := models.CreateFeatureRequest(models.DB, &featureRequestModel); err != nil {
@@ -146,7 +146,7 @@ func UpdateFeatureRequestByID(c *gin.Context) {
 		existingFeatureRequest.Accepted = *input.Accepted
 	}
 	if input.RequestedBy != nil {
-		existingFeatureRequest.RequestedBy = *input.RequestedBy
+		existingFeatureRequest.RequestedBy = input.RequestedBy
 	}
 
 	// Validate required fields

@@ -48,8 +48,6 @@ func CreateFeatures(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON", "details": err.Error()})
 		return
 	}
-
-	fmt.Println(featureRequest)
 	// Create a new Feature object
 	var userID int64
 	if featureRequest.AssignedUser != nil {
@@ -69,8 +67,14 @@ func CreateFeatures(c *gin.Context) {
 		return
 	}
 
+	fmt.Println(checkUser.Role)
+
+	if checkUser.Role != "ADMIN" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Only Admins can create features"})
+		return
+	}
+
 	// Create a new Feature object
-	//var feature models.Feature
 	feature := models.Feature{
 		Title:        featureRequest.Title,
 		Description:  featureRequest.Description,

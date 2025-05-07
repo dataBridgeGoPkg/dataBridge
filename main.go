@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"time"
 
+	"example.com/Product_RoadMap/middleware"
 	"example.com/Product_RoadMap/models"
 	route "example.com/Product_RoadMap/route"
 	"github.com/gin-gonic/gin"
@@ -24,6 +25,10 @@ func initConfig() {
 }
 
 func main() {
+	r := gin.Default()
+	// Apply CORS middleware globally
+	r.Use(middleware.CORSMiddleware())
+
 	// Load the secret key from the environment
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {

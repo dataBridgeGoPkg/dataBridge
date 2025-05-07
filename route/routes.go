@@ -8,6 +8,8 @@ import (
 
 func RegisterRoutes(router *gin.Engine) {
 
+	router.Use(middleware.CORSMiddleware())
+
 	// Public routes
 	router.POST("/register", controller.RegisterUser)
 	router.POST("/login", controller.LoginUser)

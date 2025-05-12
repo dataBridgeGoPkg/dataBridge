@@ -30,6 +30,13 @@ type FeatureRequestResponse struct {
 	UpdatedAt   int64   `json:"updated_at"`
 }
 
+type UpdateFeatureRequestInput struct {
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+	Accepted    *bool   `json:"accepted"`
+	RequestedBy *string `json:"requested_by"`
+}
+
 func CreateFeatureRequest(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -106,13 +113,6 @@ func GetFeatureRequestByID(c *gin.Context) {
 }
 
 func UpdateFeatureRequestByID(c *gin.Context) {
-	type UpdateFeatureRequestInput struct {
-		Title       *string `json:"title"`
-		Description *string `json:"description"`
-		Accepted    *bool   `json:"accepted"`
-		RequestedBy *string `json:"requested_by"`
-	}
-
 	// Parse feature request ID
 	id := c.Param("id")
 	featureID := utils.ParseID(id)
@@ -146,12 +146,8 @@ func UpdateFeatureRequestByID(c *gin.Context) {
 	if input.Description != nil {
 		existingFeatureRequest.Description = *input.Description
 	}
-	if input.Accepted != nil {
-		existingFeatureRequest.Accepted = input.Accepted
-	}
-	if input.RequestedBy != nil {
-		existingFeatureRequest.RequestedBy = input.RequestedBy
-	}
+	existingFeatureRequest.Accepted = input.Accepted
+	existingFeatureRequest.RequestedBy = input.RequestedBy
 
 	// Validate required fields
 	if existingFeatureRequest.Title == "" || existingFeatureRequest.Description == "" {

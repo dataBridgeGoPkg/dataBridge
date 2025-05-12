@@ -14,6 +14,7 @@ const (
 	InProgress StatusType = "IN_PROGRESS"
 	Ready      StatusType = "READY"
 	OnProd     StatusType = "ON_PROD"
+	Blocked    StatusType = "BLOCKED"
 )
 
 func (s StatusType) IsValid() bool {

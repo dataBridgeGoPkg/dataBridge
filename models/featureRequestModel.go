@@ -10,7 +10,7 @@ type FeatureRequestModel struct {
 	ID          int64   `json:"id,omitempty"`
 	Title       string  `json:"title,omitempty"`
 	Description string  `json:"description,omitempty"`
-	Accepted    bool    `json:"accepted,omitempty"`
+	Accepted    *bool   `json:"accepted,omitempty"`
 	RequestedBy *string `json:"requested_by,omitempty"` // Optional field for the user who requested the feature
 	CreatedAt   int64   `json:"created_at,omitempty"`   // Unix timestamp
 	UpdatedAt   int64   `json:"updated_at,omitempty"`   // Unix timestamp
@@ -23,7 +23,7 @@ func CreateFeatureRequestTable(db *sql.DB) error {
 		id BIGINT AUTO_INCREMENT PRIMARY KEY,
 		title VARCHAR(255) NOT NULL,
 		description TEXT NOT NULL,
-		accepted BOOLEAN DEFAULT FALSE,
+		accepted BOOLEAN DEFAULT NULL,
 		requested_by VARCHAR(255),
 		created_at BIGINT NOT NULL,
 		updated_at BIGINT NOT NULL

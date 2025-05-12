@@ -14,7 +14,7 @@ type FeatureRequest struct {
 	ID          int64  `json:"id,omitempty"`
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`
-	Accepted    bool   `json:"accepted" binding:"required"`
+	Accepted    *bool  `json:"accepted,omitempty"`
 	RequestedBy string `json:"requested_by,omitempty"`
 	CreatedAt   int64  `json:"created_at,omitempty"` // Unix timestamp
 	UpdatedAt   int64  `json:"updated_at,omitempty"` // Unix timestamp
@@ -24,7 +24,7 @@ type FeatureRequestResponse struct {
 	ID          int64   `json:"id"`
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
-	Accepted    bool    `json:"accepted"`
+	Accepted    *bool   `json:"accepted,omitempty"`
 	RequestedBy *string `json:"requested_by,omitempty"`
 	CreatedAt   int64   `json:"created_at"`
 	UpdatedAt   int64   `json:"updated_at"`
@@ -54,6 +54,10 @@ func CreateFeatureRequest(c *gin.Context) {
 		Description: featureRequest.Description,
 		Accepted:    featureRequest.Accepted,
 		RequestedBy: &featureRequest.RequestedBy,
+	}
+
+	if featureRequest.Accepted != nil {
+		featureRequestModel.Accepted = featureRequest.Accepted
 	}
 
 	if err := models.CreateFeatureRequest(models.DB, &featureRequestModel); err != nil {
@@ -143,7 +147,7 @@ func UpdateFeatureRequestByID(c *gin.Context) {
 		existingFeatureRequest.Description = *input.Description
 	}
 	if input.Accepted != nil {
-		existingFeatureRequest.Accepted = *input.Accepted
+		existingFeatureRequest.Accepted = input.Accepted
 	}
 	if input.RequestedBy != nil {
 		existingFeatureRequest.RequestedBy = input.RequestedBy

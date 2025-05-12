@@ -32,6 +32,15 @@ type users struct {
 	UpdatedAt int64       `json:"updated_at,omitempty"`
 }
 
+type loginResponse struct {
+	ID        int64       `json:"id"`
+	Role      models.Role `json:"role"`
+	FirstName string      `json:"first_name"`
+	LastName  string      `json:"last_name"`
+	EmailId   string      `json:"email_id"`
+	Token     string      `json:"token"`
+}
+
 func CreateUsers(context *gin.Context) {
 	var user models.User
 
@@ -323,5 +332,14 @@ func LoginUser(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"token": tokenString})
+	returnObject := loginResponse{
+		ID:        user.ID,
+		Role:      user.Role,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		EmailId:   user.EmailId,
+		Token:     tokenString,
+	}
+
+	context.JSON(http.StatusOK, gin.H{"data": returnObject})
 }

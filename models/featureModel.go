@@ -31,8 +31,8 @@ type Feature struct {
 	Title        string     `json:"title,omitempty"`
 	Description  string     `json:"description,omitempty"`
 	Status       StatusType `json:"status,omitempty"`
-	StartTime    *string    `json:"start_time,omitempty"` // consider using int64 or time.Time if doing time calculations
-	EndTime      *string    `json:"end_time,omitempty"`
+	StartTime    *int64     `json:"start_time,omitempty"` // consider using int64 or time.Time if doing time calculations
+	EndTime      *int64     `json:"end_time,omitempty"`
 	Notes        *string    `json:"notes,omitempty"`
 	AssignedUser *int64     `json:"assigned_user,omitempty"`
 	CreatedAt    int64      `json:"created_at,omitempty"`
@@ -63,8 +63,8 @@ type FeatureModelWithUserName struct {
 	Title         string
 	Description   string
 	Status        string
-	StartTime     sql.NullString
-	EndTime       sql.NullString
+	StartTime     sql.NullInt64
+	EndTime       sql.NullInt64
 	Notes         string
 	AssignedUser  int64
 	UserFirstName string

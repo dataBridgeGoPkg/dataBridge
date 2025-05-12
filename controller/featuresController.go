@@ -15,8 +15,8 @@ type Feature struct {
 	Title        string            `json:"title" binding:"required"`
 	Description  string            `json:"description" binding:"required"`
 	Status       models.StatusType `json:"status" binding:"required"`
-	StartTime    string            `json:"start_time,omitempty"`
-	EndTime      string            `json:"end_time,omitempty"`
+	StartTime    *int64            `json:"start_time,omitempty"`
+	EndTime      *int64            `json:"end_time,omitempty"`
 	Notes        string            `json:"notes,omitempty"`
 	AssignedUser *int64            `json:"assigned_user,omitempty"` // Accepts int64 or null
 }
@@ -26,8 +26,8 @@ type response struct {
 	Title        string            `json:"title"`
 	Description  string            `json:"description"`
 	Status       models.StatusType `json:"status"`
-	StartTime    *string           `json:"start_time,omitempty"`
-	EndTime      *string           `json:"end_time,omitempty"`
+	StartTime    *int64            `json:"start_time,omitempty"`
+	EndTime      *int64            `json:"end_time,omitempty"`
 	Notes        *string           `json:"notes,omitempty"`
 	AssignedUser *int64            `json:"assigned_user,omitempty"`
 	CreatedAt    int64             `json:"created_at"`
@@ -79,8 +79,8 @@ func CreateFeatures(c *gin.Context) {
 		Title:        featureRequest.Title,
 		Description:  featureRequest.Description,
 		Status:       featureRequest.Status,
-		StartTime:    &featureRequest.StartTime,
-		EndTime:      &featureRequest.EndTime,
+		StartTime:    featureRequest.StartTime,
+		EndTime:      featureRequest.EndTime,
 		Notes:        &featureRequest.Notes,
 		AssignedUser: featureRequest.AssignedUser,
 	}
@@ -217,12 +217,12 @@ func UpdateFeatureById(c *gin.Context) {
 		existingFeature.Status = models.StatusType(*input.Status)
 	}
 	if input.StartTime != nil {
-		startTimeStr := fmt.Sprintf("%d", *input.StartTime)
-		existingFeature.StartTime = &startTimeStr
+		startTime := *input.StartTime
+		existingFeature.StartTime = &startTime
 	}
 	if input.EndTime != nil {
-		endTimeStr := fmt.Sprintf("%d", *input.EndTime)
-		existingFeature.EndTime = &endTimeStr
+		endTime := *input.EndTime
+		existingFeature.EndTime = &endTime
 	}
 	if input.Notes != nil {
 		existingFeature.Notes = input.Notes

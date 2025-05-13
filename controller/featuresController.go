@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -12,26 +11,30 @@ import (
 )
 
 type Feature struct {
-	Title        string            `json:"title" binding:"required"`
-	Description  string            `json:"description" binding:"required"`
-	Status       models.StatusType `json:"status" binding:"required"`
-	StartTime    *int64            `json:"start_time,omitempty"`
-	EndTime      *int64            `json:"end_time,omitempty"`
-	Notes        string            `json:"notes,omitempty"`
-	AssignedUser *int64            `json:"assigned_user,omitempty"` // Accepts int64 or null
+	Title         string            `json:"title" binding:"required"`
+	Description   string            `json:"description" binding:"required"`
+	Status        models.StatusType `json:"status" binding:"required"`
+	StartTime     *int64            `json:"start_time,omitempty"`
+	EndTime       *int64            `json:"end_time,omitempty"`
+	Notes         string            `json:"notes,omitempty"`
+	AssignedUser  *int64            `json:"assigned_user,omitempty"` // Accepts int64 or null
+	FeatureDocUrl *string           `json:"feature_doc_url,omitempty"`
+	FigmaUrl      *string           `json:"figma_url,omitempty"`
 }
 
 type response struct {
-	ID           int64             `json:"id"`
-	Title        string            `json:"title"`
-	Description  string            `json:"description"`
-	Status       models.StatusType `json:"status"`
-	StartTime    *int64            `json:"start_time,omitempty"`
-	EndTime      *int64            `json:"end_time,omitempty"`
-	Notes        *string           `json:"notes,omitempty"`
-	AssignedUser *int64            `json:"assigned_user,omitempty"`
-	CreatedAt    int64             `json:"created_at"`
-	UpdatedAt    int64             `json:"updated_at"`
+	ID            int64             `json:"id"`
+	Title         string            `json:"title"`
+	Description   string            `json:"description"`
+	Status        models.StatusType `json:"status"`
+	StartTime     *int64            `json:"start_time,omitempty"`
+	EndTime       *int64            `json:"end_time,omitempty"`
+	Notes         *string           `json:"notes,omitempty"`
+	AssignedUser  *int64            `json:"assigned_user,omitempty"`
+	FeatureDocUrl *string           `json:"feature_doc_url,omitempty"`
+	FigmaUrl      *string           `json:"figma_url,omitempty"`
+	CreatedAt     int64             `json:"created_at"`
+	UpdatedAt     int64             `json:"updated_at"`
 }
 
 func CreateFeatures(c *gin.Context) {
@@ -56,7 +59,7 @@ func CreateFeatures(c *gin.Context) {
 		userID = 0 // Default to 0 if AssignedUser is nil
 	}
 
-	//Check if the userID exists
+	//Check if the assigned userID exists
 	checkUser, err := models.GetUserByID(models.DB, userID)
 	if checkUser == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -67,22 +70,17 @@ func CreateFeatures(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(checkUser.Role)
-
-	if checkUser.Role != "ADMIN" {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Only Admins can create features"})
-		return
-	}
-
 	// Create a new Feature object
 	feature := models.Feature{
-		Title:        featureRequest.Title,
-		Description:  featureRequest.Description,
-		Status:       featureRequest.Status,
-		StartTime:    featureRequest.StartTime,
-		EndTime:      featureRequest.EndTime,
-		Notes:        &featureRequest.Notes,
-		AssignedUser: featureRequest.AssignedUser,
+		Title:         featureRequest.Title,
+		Description:   featureRequest.Description,
+		Status:        featureRequest.Status,
+		StartTime:     featureRequest.StartTime,
+		EndTime:       featureRequest.EndTime,
+		Notes:         &featureRequest.Notes,
+		AssignedUser:  featureRequest.AssignedUser,
+		FeatureDocUrl: featureRequest.FeatureDocUrl,
+		FigmaUrl:      featureRequest.FigmaUrl,
 	}
 
 	if err := models.CreateFeature(models.DB, &feature); err != nil {
@@ -91,16 +89,18 @@ func CreateFeatures(c *gin.Context) {
 	}
 
 	response := response{
-		ID:           feature.ID,
-		Title:        feature.Title,
-		Description:  feature.Description,
-		Status:       feature.Status,
-		StartTime:    feature.StartTime,
-		EndTime:      feature.EndTime,
-		Notes:        feature.Notes,
-		AssignedUser: feature.AssignedUser,
-		CreatedAt:    feature.CreatedAt,
-		UpdatedAt:    feature.UpdatedAt,
+		ID:            feature.ID,
+		Title:         feature.Title,
+		Description:   feature.Description,
+		Status:        feature.Status,
+		StartTime:     feature.StartTime,
+		EndTime:       feature.EndTime,
+		Notes:         feature.Notes,
+		AssignedUser:  feature.AssignedUser,
+		FeatureDocUrl: feature.FeatureDocUrl,
+		FigmaUrl:      feature.FigmaUrl,
+		CreatedAt:     feature.CreatedAt,
+		UpdatedAt:     feature.UpdatedAt,
 	}
 
 	c.JSON(http.StatusCreated, response)
@@ -127,16 +127,18 @@ func GetFeatureByID(c *gin.Context) {
 	}
 
 	response := response{
-		ID:           getFeature.ID,
-		Title:        getFeature.Title,
-		Description:  getFeature.Description,
-		Status:       getFeature.Status,
-		StartTime:    getFeature.StartTime,
-		EndTime:      getFeature.EndTime,
-		Notes:        getFeature.Notes,
-		AssignedUser: getFeature.AssignedUser,
-		CreatedAt:    getFeature.CreatedAt,
-		UpdatedAt:    getFeature.UpdatedAt,
+		ID:            getFeature.ID,
+		Title:         getFeature.Title,
+		Description:   getFeature.Description,
+		Status:        getFeature.Status,
+		StartTime:     getFeature.StartTime,
+		EndTime:       getFeature.EndTime,
+		Notes:         getFeature.Notes,
+		AssignedUser:  getFeature.AssignedUser,
+		FeatureDocUrl: getFeature.FeatureDocUrl,
+		FigmaUrl:      getFeature.FigmaUrl,
+		CreatedAt:     getFeature.CreatedAt,
+		UpdatedAt:     getFeature.UpdatedAt,
 	}
 	c.JSON(http.StatusOK, response)
 }
@@ -171,13 +173,15 @@ func DeletFeatureById(c *gin.Context) {
 func UpdateFeatureById(c *gin.Context) {
 
 	type UpdateFeatureInput struct {
-		Title        *string `json:"title"`
-		Description  *string `json:"description"`
-		Status       *string `json:"status"`
-		StartTime    *int64  `json:"start_time"`
-		EndTime      *int64  `json:"end_time"`
-		Notes        *string `json:"notes"`
-		AssignedUser *int64  `json:"assigned_user"`
+		Title         *string `json:"title"`
+		Description   *string `json:"description"`
+		Status        *string `json:"status"`
+		StartTime     *int64  `json:"start_time"`
+		EndTime       *int64  `json:"end_time"`
+		Notes         *string `json:"notes"`
+		AssignedUser  *int64  `json:"assigned_user"`
+		FeatureDocUrl *string `json:"feature_doc_url,omitempty"`
+		FigmaUrl      *string `json:"figma_url,omitempty"`
 	}
 
 	// Parse feature ID
@@ -230,6 +234,12 @@ func UpdateFeatureById(c *gin.Context) {
 	if input.AssignedUser != nil {
 		existingFeature.AssignedUser = input.AssignedUser
 	}
+	if input.FeatureDocUrl != nil {
+		existingFeature.FeatureDocUrl = input.FeatureDocUrl
+	}
+	if input.FigmaUrl != nil {
+		existingFeature.FigmaUrl = input.FigmaUrl
+	}
 
 	// Update in DB
 	if err := models.UpdateFeature(models.DB, existingFeature); err != nil {
@@ -239,16 +249,18 @@ func UpdateFeatureById(c *gin.Context) {
 
 	// Response
 	updateResponse := response{
-		ID:           existingFeature.ID,
-		Title:        existingFeature.Title,
-		Description:  existingFeature.Description,
-		Status:       existingFeature.Status,
-		StartTime:    existingFeature.StartTime,
-		EndTime:      existingFeature.EndTime,
-		Notes:        existingFeature.Notes,
-		AssignedUser: existingFeature.AssignedUser,
-		CreatedAt:    existingFeature.CreatedAt,
-		UpdatedAt:    existingFeature.UpdatedAt,
+		ID:            existingFeature.ID,
+		Title:         existingFeature.Title,
+		Description:   existingFeature.Description,
+		Status:        existingFeature.Status,
+		StartTime:     existingFeature.StartTime,
+		EndTime:       existingFeature.EndTime,
+		Notes:         existingFeature.Notes,
+		AssignedUser:  existingFeature.AssignedUser,
+		FeatureDocUrl: existingFeature.FeatureDocUrl,
+		FigmaUrl:      existingFeature.FigmaUrl,
+		CreatedAt:     existingFeature.CreatedAt,
+		UpdatedAt:     existingFeature.UpdatedAt,
 	}
 
 	c.JSON(http.StatusOK, updateResponse)
@@ -266,16 +278,18 @@ func GetAllFeatures(c *gin.Context) {
 	var responses []response
 	for _, f := range features {
 		responses = append(responses, response{
-			ID:           f.ID,
-			Title:        f.Title,
-			Description:  f.Description,
-			Status:       f.Status,
-			StartTime:    f.StartTime, // Use the pointer field directly
-			EndTime:      f.EndTime,   // Use the pointer field directly
-			Notes:        f.Notes,     // Use the pointer field directly
-			AssignedUser: f.AssignedUser,
-			CreatedAt:    f.CreatedAt,
-			UpdatedAt:    f.UpdatedAt,
+			ID:            f.ID,
+			Title:         f.Title,
+			Description:   f.Description,
+			Status:        f.Status,
+			StartTime:     f.StartTime, // Use the pointer field directly
+			EndTime:       f.EndTime,   // Use the pointer field directly
+			Notes:         f.Notes,     // Use the pointer field directly
+			AssignedUser:  f.AssignedUser,
+			FeatureDocUrl: f.FeatureDocUrl,
+			FigmaUrl:      f.FigmaUrl,
+			CreatedAt:     f.CreatedAt,
+			UpdatedAt:     f.UpdatedAt,
 		})
 	}
 
@@ -302,6 +316,8 @@ func GetAllFeaturesWithUserName(c *gin.Context) {
 			EndTime:       f.EndTime,
 			Notes:         f.Notes,
 			AssignedUser:  f.AssignedUser,
+			FeatureDocUrl: f.FeatureDocUrl,
+			FigmaUrl:      f.FigmaUrl,
 			UserFirstName: f.UserFirstName,
 			UserLastName:  f.UserLastName,
 			CreatedAt:     f.CreatedAt,

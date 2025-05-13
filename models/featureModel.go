@@ -19,7 +19,7 @@ const (
 
 func (s StatusType) IsValid() bool {
 	switch s {
-	case NotStarted, InProgress, Ready, OnProd:
+	case NotStarted, InProgress, Ready, OnProd, Blocked:
 		return true
 	default:
 		return false
@@ -28,16 +28,18 @@ func (s StatusType) IsValid() bool {
 
 // Feature represents a product feature assigned to a user
 type Feature struct {
-	ID           int64      `json:"id,omitempty"`
-	Title        string     `json:"title,omitempty"`
-	Description  string     `json:"description,omitempty"`
-	Status       StatusType `json:"status,omitempty"`
-	StartTime    *int64     `json:"start_time,omitempty"` // consider using int64 or time.Time if doing time calculations
-	EndTime      *int64     `json:"end_time,omitempty"`
-	Notes        *string    `json:"notes,omitempty"`
-	AssignedUser *int64     `json:"assigned_user,omitempty"`
-	CreatedAt    int64      `json:"created_at,omitempty"`
-	UpdatedAt    int64      `json:"updated_at,omitempty"`
+	ID            int64      `json:"id,omitempty"`
+	Title         string     `json:"title,omitempty"`
+	Description   string     `json:"description,omitempty"`
+	Status        StatusType `json:"status,omitempty"`
+	StartTime     *int64     `json:"start_time,omitempty"`
+	EndTime       *int64     `json:"end_time,omitempty"`
+	Notes         *string    `json:"notes,omitempty"`
+	AssignedUser  *int64     `json:"assigned_user,omitempty"`
+	FeatureDocUrl *string    `json:"feature_doc_url,omitempty"`
+	FigmaUrl      *string    `json:"figma_url,omitempty"`
+	CreatedAt     int64      `json:"created_at,omitempty"`
+	UpdatedAt     int64      `json:"updated_at,omitempty"`
 }
 
 func CreateFeaturesTable(db *sql.DB) error {
@@ -51,6 +53,8 @@ func CreateFeaturesTable(db *sql.DB) error {
 		end_time VARCHAR(255),
 		notes TEXT,
 		assigned_user_id BIGINT,
+		feature_doc_url TEXT,
+		figma_url TEXT,
 		created_at BIGINT NOT NULL,
 		updated_at BIGINT NOT NULL,
 		FOREIGN KEY (assigned_user_id) REFERENCES users(id)
@@ -68,6 +72,8 @@ type FeatureModelWithUserName struct {
 	EndTime       sql.NullInt64
 	Notes         string
 	AssignedUser  int64
+	FeatureDocUrl sql.NullString
+	FigmaUrl      sql.NullString
 	UserFirstName string
 	UserLastName  string
 	CreatedAt     int64
@@ -78,7 +84,8 @@ func GetAllFeaturesWithUserName(db *sql.DB) ([]*FeatureModelWithUserName, error)
 	query := `
 	SELECT 
 		f.id, f.title, f.description, f.status, f.start_time, f.end_time,
-		f.notes, f.assigned_user_id, u.first_name, u.last_name, f.created_at, f.updated_at
+		f.notes, f.assigned_user_id, f.feature_doc_url, f.figma_url,
+		u.first_name, u.last_name, f.created_at, f.updated_at
 	FROM features f
 	LEFT JOIN users u ON f.assigned_user_id = u.id
 	`
@@ -101,6 +108,8 @@ func GetAllFeaturesWithUserName(db *sql.DB) ([]*FeatureModelWithUserName, error)
 			&feature.EndTime,
 			&feature.Notes,
 			&feature.AssignedUser,
+			&feature.FeatureDocUrl,
+			&feature.FigmaUrl,
 			&feature.UserFirstName,
 			&feature.UserLastName,
 			&feature.CreatedAt,
@@ -129,8 +138,11 @@ func CreateFeature(db *sql.DB, feature *Feature) error {
 	feature.UpdatedAt = now
 
 	query := `
-	INSERT INTO features (title, description, status, start_time, end_time, notes, assigned_user_id, created_at, updated_at)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	INSERT INTO features (
+		title, description, status, start_time, end_time, notes, 
+		assigned_user_id, feature_doc_url, figma_url, created_at, updated_at
+	)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := db.Exec(query,
 		feature.Title,
@@ -140,6 +152,8 @@ func CreateFeature(db *sql.DB, feature *Feature) error {
 		feature.EndTime,
 		feature.Notes,
 		feature.AssignedUser,
+		feature.FeatureDocUrl,
+		feature.FigmaUrl,
 		feature.CreatedAt,
 		feature.UpdatedAt,
 	)
@@ -153,7 +167,9 @@ func CreateFeature(db *sql.DB, feature *Feature) error {
 
 func GetFeatureByID(db *sql.DB, id int64) (*Feature, error) {
 	query := `
-	SELECT id, title, description, status, start_time, end_time, notes, assigned_user_id, created_at, updated_at
+	SELECT 
+		id, title, description, status, start_time, end_time, notes,
+		assigned_user_id, feature_doc_url, figma_url, created_at, updated_at
 	FROM features
 	WHERE id = ?`
 
@@ -168,6 +184,8 @@ func GetFeatureByID(db *sql.DB, id int64) (*Feature, error) {
 		&feature.EndTime,
 		&feature.Notes,
 		&feature.AssignedUser,
+		&feature.FeatureDocUrl,
+		&feature.FigmaUrl,
 		&feature.CreatedAt,
 		&feature.UpdatedAt,
 	)
@@ -187,7 +205,8 @@ func UpdateFeature(db *sql.DB, feature *Feature) error {
 
 	query := `
 	UPDATE features
-	SET title = ?, description = ?, status = ?, start_time = ?, end_time = ?, notes = ?, assigned_user_id = ?, updated_at = ?
+	SET title = ?, description = ?, status = ?, start_time = ?, end_time = ?, 
+		notes = ?, assigned_user_id = ?, feature_doc_url = ?, figma_url = ?, updated_at = ?
 	WHERE id = ?`
 
 	_, err := db.Exec(query,
@@ -198,6 +217,8 @@ func UpdateFeature(db *sql.DB, feature *Feature) error {
 		feature.EndTime,
 		feature.Notes,
 		feature.AssignedUser,
+		feature.FeatureDocUrl,
+		feature.FigmaUrl,
 		feature.UpdatedAt,
 		feature.ID,
 	)
@@ -211,7 +232,9 @@ func DeleteFeature(db *sql.DB, id int64) error {
 
 func GetAllFeatures(db *sql.DB) ([]*Feature, error) {
 	query := `
-	SELECT id, title, description, status, start_time, end_time, notes, assigned_user_id, created_at, updated_at
+	SELECT 
+		id, title, description, status, start_time, end_time, notes,
+		assigned_user_id, feature_doc_url, figma_url, created_at, updated_at
 	FROM features`
 
 	rows, err := db.Query(query)
@@ -232,6 +255,8 @@ func GetAllFeatures(db *sql.DB) ([]*Feature, error) {
 			&feature.EndTime,
 			&feature.Notes,
 			&feature.AssignedUser,
+			&feature.FeatureDocUrl,
+			&feature.FigmaUrl,
 			&feature.CreatedAt,
 			&feature.UpdatedAt,
 		)

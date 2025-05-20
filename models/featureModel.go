@@ -26,20 +26,39 @@ func (s StatusType) IsValid() bool {
 	}
 }
 
+type FeatureHealth string
+
+const (
+	IdeaValidation FeatureHealth = "IDEA_VALIDATION"
+	Design         FeatureHealth = "DESIGN"
+	Development    FeatureHealth = "DEVELOPMENT"
+	Deployed       FeatureHealth = "DEPLOYED"
+)
+
+func (h FeatureHealth) IsValid() bool {
+	switch h {
+	case IdeaValidation, Design, Development, Deployed:
+		return true
+	default:
+		return false
+	}
+}
+
 // Feature represents a product feature assigned to a user
 type Feature struct {
-	ID            int64      `json:"id,omitempty"`
-	Title         string     `json:"title,omitempty"`
-	Description   string     `json:"description,omitempty"`
-	Status        StatusType `json:"status,omitempty"`
-	StartTime     *int64     `json:"start_time,omitempty"`
-	EndTime       *int64     `json:"end_time,omitempty"`
-	Notes         *string    `json:"notes,omitempty"`
-	FeatureDocUrl *string    `json:"feature_doc_url,omitempty"`
-	FigmaUrl      *string    `json:"figma_url,omitempty"`
-	Insights      *string    `json:"insights,omitempty"`
-	CreatedAt     int64      `json:"created_at,omitempty"`
-	UpdatedAt     int64      `json:"updated_at,omitempty"`
+	ID            int64         `json:"id,omitempty"`
+	Title         string        `json:"title,omitempty"`
+	Description   string        `json:"description,omitempty"`
+	Status        StatusType    `json:"status,omitempty"`
+	Health        FeatureHealth `json:"health,omitempty"`
+	StartTime     *int64        `json:"start_time,omitempty"`
+	EndTime       *int64        `json:"end_time,omitempty"`
+	Notes         *string       `json:"notes,omitempty"`
+	FeatureDocUrl *string       `json:"feature_doc_url,omitempty"`
+	FigmaUrl      *string       `json:"figma_url,omitempty"`
+	Insights      *string       `json:"insights,omitempty"`
+	CreatedAt     int64         `json:"created_at,omitempty"`
+	UpdatedAt     int64         `json:"updated_at,omitempty"`
 }
 
 func CreateFeaturesTable(db *sql.DB) error {
@@ -49,6 +68,7 @@ func CreateFeaturesTable(db *sql.DB) error {
 		title VARCHAR(255) NOT NULL,
 		description TEXT NOT NULL,
 		status VARCHAR(50) NOT NULL,
+		health VARCHAR(50) NOT NULL,
 		start_time VARCHAR(255),
 		end_time VARCHAR(255),
 		notes TEXT,
@@ -67,6 +87,7 @@ type FeatureModelWithUserName struct {
 	Title         string
 	Description   string
 	Status        string
+	Health        string
 	StartTime     sql.NullInt64
 	EndTime       sql.NullInt64
 	Notes         string
@@ -92,6 +113,7 @@ type FeatureWithAssignedUsers struct {
 	Title         string               `json:"title"`
 	Description   string               `json:"description"`
 	Status        string               `json:"status"` // Consider using your StatusType here for consistency
+	Health        string               `json:"health"` // Consider using your FeatureHealth here for consistency
 	StartTime     sql.NullInt64        `json:"start_time,omitempty"`
 	EndTime       sql.NullInt64        `json:"end_time,omitempty"`
 	Notes         sql.NullString       `json:"notes,omitempty"` // Assuming notes can be NULL
@@ -111,6 +133,7 @@ func GetAllFeaturesWithUserName(db *sql.DB) ([]*FeatureWithAssignedUsers, error)
         f.title,
         f.description,
         f.status,
+		f.health,
         f.start_time,
         f.end_time,
         f.notes,
@@ -148,6 +171,7 @@ func GetAllFeaturesWithUserName(db *sql.DB) ([]*FeatureWithAssignedUsers, error)
 		var title string
 		var description string
 		var status string // Or your models.StatusType if you prefer
+		var health string // Or your models.FeatureHealth if you prefer
 		var startTime sql.NullInt64
 		var endTime sql.NullInt64
 		var notes sql.NullString
@@ -167,6 +191,7 @@ func GetAllFeaturesWithUserName(db *sql.DB) ([]*FeatureWithAssignedUsers, error)
 			&title,
 			&description,
 			&status,
+			&health,
 			&startTime,
 			&endTime,
 			&notes,
@@ -192,6 +217,7 @@ func GetAllFeaturesWithUserName(db *sql.DB) ([]*FeatureWithAssignedUsers, error)
 				Title:         title,
 				Description:   description,
 				Status:        status,
+				Health:        health,
 				StartTime:     startTime,
 				EndTime:       endTime,
 				Notes:         notes,
@@ -291,14 +317,15 @@ func CreateFeature(db *sql.DB, feature *Feature) error {
 
 	query := `
 	INSERT INTO features (
-		title, description, status, start_time, end_time, notes, feature_doc_url, figma_url, insights, created_at, updated_at
+		title, description, status, health, start_time, end_time, notes, feature_doc_url, figma_url, insights, created_at, updated_at
 	)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := db.Exec(query,
 		feature.Title,
 		feature.Description,
 		string(feature.Status),
+		string(feature.Health),
 		feature.StartTime,
 		feature.EndTime,
 		feature.Notes,
@@ -319,7 +346,7 @@ func CreateFeature(db *sql.DB, feature *Feature) error {
 func GetFeatureByID(db *sql.DB, id int64) (*Feature, error) {
 	query := `
 	SELECT 
-		id, title, description, status, start_time, end_time, notes, feature_doc_url, figma_url, insights, created_at, updated_at
+		id, title, description, status, health, start_time, end_time, notes, feature_doc_url, figma_url, insights, created_at, updated_at
 	FROM features
 	WHERE id = ?`
 
@@ -330,6 +357,7 @@ func GetFeatureByID(db *sql.DB, id int64) (*Feature, error) {
 		&feature.Title,
 		&feature.Description,
 		&feature.Status,
+		&feature.Health,
 		&feature.StartTime,
 		&feature.EndTime,
 		&feature.Notes,
@@ -355,7 +383,7 @@ func UpdateFeature(db *sql.DB, feature *Feature) error {
 
 	query := `
 	UPDATE features
-	SET title = ?, description = ?, status = ?, start_time = ?, end_time = ?, 
+	SET title = ?, description = ?, status = ?, health = ?, start_time = ?, end_time = ?, 
 		notes = ?, feature_doc_url = ?, figma_url = ?, insights = ?, updated_at = ?
 	WHERE id = ?`
 
@@ -363,6 +391,7 @@ func UpdateFeature(db *sql.DB, feature *Feature) error {
 		feature.Title,
 		feature.Description,
 		string(feature.Status),
+		string(feature.Health),
 		feature.StartTime,
 		feature.EndTime,
 		feature.Notes,
@@ -383,7 +412,7 @@ func DeleteFeature(db *sql.DB, id int64) error {
 func GetAllFeatures(db *sql.DB) ([]*Feature, error) {
 	query := `
 	SELECT 
-		id, title, description, status, start_time, end_time, notes, feature_doc_url, figma_url, insights, created_at, updated_at
+		id, title, description, status, health, start_time, end_time, notes, feature_doc_url, figma_url, insights, created_at, updated_at
 	FROM features`
 
 	rows, err := db.Query(query)
@@ -400,6 +429,7 @@ func GetAllFeatures(db *sql.DB) ([]*Feature, error) {
 			&feature.Title,
 			&feature.Description,
 			&feature.Status,
+			&feature.Health,
 			&feature.StartTime,
 			&feature.EndTime,
 			&feature.Notes,

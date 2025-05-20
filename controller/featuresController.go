@@ -12,31 +12,33 @@ import (
 )
 
 type Feature struct {
-	Title         string            `json:"title" binding:"required"`
-	Description   string            `json:"description" binding:"required"`
-	Status        models.StatusType `json:"status" binding:"required"`
-	StartTime     *int64            `json:"start_time,omitempty"`
-	EndTime       *int64            `json:"end_time,omitempty"`
-	Notes         string            `json:"notes,omitempty"`
-	AssignedUser  *int64            `json:"assigned_user,omitempty"` // Accepts int64 or null
-	FeatureDocUrl *string           `json:"feature_doc_url,omitempty"`
-	FigmaUrl      *string           `json:"figma_url,omitempty"`
-	Insights      *string           `json:"insights,omitempty"`
+	Title         string               `json:"title" binding:"required"`
+	Description   string               `json:"description" binding:"required"`
+	Status        models.StatusType    `json:"status" binding:"required"`
+	Health        models.FeatureHealth `json:"health,omitempty"`
+	StartTime     *int64               `json:"start_time,omitempty"`
+	EndTime       *int64               `json:"end_time,omitempty"`
+	Notes         string               `json:"notes,omitempty"`
+	AssignedUser  *int64               `json:"assigned_user,omitempty"` // Accepts int64 or null
+	FeatureDocUrl *string              `json:"feature_doc_url,omitempty"`
+	FigmaUrl      *string              `json:"figma_url,omitempty"`
+	Insights      *string              `json:"insights,omitempty"`
 }
 
 type response struct {
-	ID            int64             `json:"id"`
-	Title         string            `json:"title"`
-	Description   string            `json:"description"`
-	Status        models.StatusType `json:"status"`
-	StartTime     *int64            `json:"start_time,omitempty"`
-	EndTime       *int64            `json:"end_time,omitempty"`
-	Notes         *string           `json:"notes,omitempty"`
-	FeatureDocUrl *string           `json:"feature_doc_url,omitempty"`
-	FigmaUrl      *string           `json:"figma_url,omitempty"`
-	Insights      *string           `json:"insights,omitempty"`
-	CreatedAt     int64             `json:"created_at"`
-	UpdatedAt     int64             `json:"updated_at"`
+	ID            int64                `json:"id"`
+	Title         string               `json:"title"`
+	Description   string               `json:"description"`
+	Status        models.StatusType    `json:"status"`
+	Health        models.FeatureHealth `json:"health,omitempty"`
+	StartTime     *int64               `json:"start_time,omitempty"`
+	EndTime       *int64               `json:"end_time,omitempty"`
+	Notes         *string              `json:"notes,omitempty"`
+	FeatureDocUrl *string              `json:"feature_doc_url,omitempty"`
+	FigmaUrl      *string              `json:"figma_url,omitempty"`
+	Insights      *string              `json:"insights,omitempty"`
+	CreatedAt     int64                `json:"created_at"`
+	UpdatedAt     int64                `json:"updated_at"`
 }
 
 type FeatureAssignee struct {
@@ -85,6 +87,7 @@ func CreateFeatures(c *gin.Context) {
 		Title:         featureRequest.Title,
 		Description:   featureRequest.Description,
 		Status:        featureRequest.Status,
+		Health:        featureRequest.Health,
 		StartTime:     featureRequest.StartTime,
 		EndTime:       featureRequest.EndTime,
 		Notes:         &featureRequest.Notes,
@@ -103,6 +106,7 @@ func CreateFeatures(c *gin.Context) {
 		Title:         feature.Title,
 		Description:   feature.Description,
 		Status:        feature.Status,
+		Health:        feature.Health,
 		StartTime:     feature.StartTime,
 		EndTime:       feature.EndTime,
 		Notes:         feature.Notes,
@@ -143,6 +147,7 @@ func GetFeatureByID(c *gin.Context) {
 		Title:         getFeature.Title,
 		Description:   getFeature.Description,
 		Status:        getFeature.Status,
+		Health:        getFeature.Health,
 		StartTime:     getFeature.StartTime,
 		EndTime:       getFeature.EndTime,
 		Notes:         getFeature.Notes,
@@ -220,15 +225,16 @@ func DeletFeatureById(c *gin.Context) {
 func UpdateFeatureById(c *gin.Context) {
 
 	type UpdateFeatureInput struct {
-		Title         *string `json:"title"`
-		Description   *string `json:"description"`
-		Status        *string `json:"status"`
-		StartTime     *int64  `json:"start_time"`
-		EndTime       *int64  `json:"end_time"`
-		Notes         *string `json:"notes"`
-		FeatureDocUrl *string `json:"feature_doc_url,omitempty"`
-		FigmaUrl      *string `json:"figma_url,omitempty"`
-		Insights      *string `json:"insights,omitempty"`
+		Title         *string               `json:"title"`
+		Description   *string               `json:"description"`
+		Status        *models.StatusType    `json:"status" binding:"required"`
+		Health        *models.FeatureHealth `json:"health,omitempty"`
+		StartTime     *int64                `json:"start_time"`
+		EndTime       *int64                `json:"end_time"`
+		Notes         *string               `json:"notes"`
+		FeatureDocUrl *string               `json:"feature_doc_url,omitempty"`
+		FigmaUrl      *string               `json:"figma_url,omitempty"`
+		Insights      *string               `json:"insights,omitempty"`
 	}
 
 	// Parse feature ID
@@ -267,6 +273,9 @@ func UpdateFeatureById(c *gin.Context) {
 	if input.Status != nil {
 		existingFeature.Status = models.StatusType(*input.Status)
 	}
+	if input.Health != nil {
+		existingFeature.Health = models.FeatureHealth(*input.Health)
+	}
 	if input.StartTime != nil {
 		startTime := *input.StartTime
 		existingFeature.StartTime = &startTime
@@ -300,6 +309,7 @@ func UpdateFeatureById(c *gin.Context) {
 		Title:         existingFeature.Title,
 		Description:   existingFeature.Description,
 		Status:        existingFeature.Status,
+		Health:        existingFeature.Health,
 		StartTime:     existingFeature.StartTime,
 		EndTime:       existingFeature.EndTime,
 		Notes:         existingFeature.Notes,
@@ -329,6 +339,7 @@ func GetAllFeatures(c *gin.Context) {
 			Title:         f.Title,
 			Description:   f.Description,
 			Status:        f.Status,
+			Health:        f.Health,
 			StartTime:     f.StartTime, // Use the pointer field directly
 			EndTime:       f.EndTime,   // Use the pointer field directly
 			Notes:         f.Notes,     // Use the pointer field directly

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -185,6 +186,32 @@ func UpdateUsers(context *gin.Context) {
 	context.JSON(http.StatusOK, response)
 }
 
+// func DeleteUsers(context *gin.Context) {
+// 	id := context.Param("id")
+// 	userID := utils.ParseID(id)
+// 	if userID == 0 {
+// 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+// 		return
+// 	}
+
+// 	user, err := models.GetUserByID(models.DB, userID)
+// 	if err != nil {
+// 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+// 		return
+// 	}
+// 	if user == nil {
+// 		context.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+// 		return
+// 	}
+
+// 	if err := models.DeleteUser(models.DB, userID); err != nil {
+// 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+// 		return
+// 	}
+
+// 	context.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+// }
+
 func DeleteUsers(context *gin.Context) {
 	id := context.Param("id")
 	userID := utils.ParseID(id)
@@ -193,22 +220,35 @@ func DeleteUsers(context *gin.Context) {
 		return
 	}
 
+	// 1. Check if the user exists
 	user, err := models.GetUserByID(models.DB, userID)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		// It's good to distinguish "not found" from other DB errors
+		if err == sql.ErrNoRows {
+			context.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			return
+		}
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error (user lookup)", "details": err.Error()})
 		return
 	}
-	if user == nil {
+	if user == nil && err == nil { // If GetUserByID might return (nil, nil) for not found
 		context.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
-	if err := models.DeleteUser(models.DB, userID); err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+	// 2. Delete associated feature assignments
+	if err := models.DeleteFeatureAssigneeWithUserId(models.DB, userID); err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete feature assignments", "details": err.Error()})
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+	// 3. Delete the user
+	if err := models.DeleteUser(models.DB, userID); err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user", "details": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "User and associated feature assignments deleted successfully"})
 }
 
 func GetAllUsers(context *gin.Context) {

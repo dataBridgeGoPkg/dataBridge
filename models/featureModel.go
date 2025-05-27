@@ -32,12 +32,11 @@ const (
 	IdeaValidation FeatureHealth = "IDEA_VALIDATION"
 	Design         FeatureHealth = "DESIGN"
 	Development    FeatureHealth = "DEVELOPMENT"
-	Deployed       FeatureHealth = "DEPLOYED"
 )
 
 func (h FeatureHealth) IsValid() bool {
 	switch h {
-	case IdeaValidation, Design, Development, Deployed:
+	case IdeaValidation, Design, Development:
 		return true
 	default:
 		return false

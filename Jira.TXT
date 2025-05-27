@@ -1,0 +1,15 @@
+Step 1 - 
+Fetch Empower Board Details - 
+https://ringover.atlassian.net/rest/api/3/project/11231
+EMPOWER_ID = 11231
+KEY = EM
+___
+Step 2 - 
+User_ID (Atmadeep) - 616e9002bcb5740068040e27
+
+components - 
+"id": "11526" / "name": "API",
+"id": "11525" / "name": "Front",
+
+__
+

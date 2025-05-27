@@ -13,7 +13,6 @@ func RegisterRoutes(router *gin.Engine) {
 	// Public routes
 	router.POST("/register", controller.RegisterUser)
 	router.POST("/login", controller.LoginUser)
-	router.GET("/getAllfeaturesWithName", controller.GetAllFeaturesWithAssginness)
 
 	// Protected routes
 	protected := router.Group("/")
@@ -32,6 +31,8 @@ func RegisterRoutes(router *gin.Engine) {
 		protected.DELETE("/deleteFeature/:id", controller.DeletFeatureById)
 		protected.PUT("/updateFeature/:id", controller.UpdateFeatureById)
 		protected.GET("/getAllFeatures", controller.GetAllFeatures)
+
+		protected.GET("/getAllfeaturesWithName", controller.GetAllFeaturesWithAssginness) //
 		//Feature Assignees
 		protected.POST("/createFeatureAssignees", controller.CreateFeatureAssignee)
 		protected.POST("/AddAssigneeToFeature", controller.AddUserToAFeature)
@@ -53,5 +54,6 @@ func RegisterRoutes(router *gin.Engine) {
 
 		//router.POST("/test", controller.TestProductBoardAPI)
 		protected.POST("/productBoard", controller.CreateProductBoardFeature)
+		protected.POST("/jira", controller.CreateJiraIssue)
 	}
 }

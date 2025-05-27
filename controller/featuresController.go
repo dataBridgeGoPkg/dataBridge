@@ -341,9 +341,9 @@ func GetAllFeatures(c *gin.Context) {
 			Description:   f.Description,
 			Status:        f.Status,
 			Health:        f.Health,
-			StartTime:     f.StartTime, // Use the pointer field directly
-			EndTime:       f.EndTime,   // Use the pointer field directly
-			Notes:         f.Notes,     // Use the pointer field directly
+			StartTime:     f.StartTime,
+			EndTime:       f.EndTime,
+			Notes:         f.Notes,
 			FeatureDocUrl: f.FeatureDocUrl,
 			FigmaUrl:      f.FigmaUrl,
 			Insights:      f.Insights,
@@ -358,31 +358,7 @@ func GetAllFeatures(c *gin.Context) {
 
 func GetAllFeaturesWithAssginness(c *gin.Context) {
 
-	fmt.Println(c.Keys["user_id"])
-
-	//Check if the user is viewer and
-	user_id := c.Keys["user_id"].(int64)
-	if user_id == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	//Fetch user details
-	user, err := models.GetUserByID(models.DB, user_id)
-	if user == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
-	}
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
-		return
-	}
-
-	//Check if the user is viewer
-	if user.Role != "DEVELOPER" && user.Role != "ADMIN" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "You are not authorized to view this resource"})
-		return
-	}
+	//fmt.Println(c.Keys["user_id"])
 
 	sourceFeatures, err := models.GetAllFeaturesWithUserName(models.DB)
 	if err != nil {

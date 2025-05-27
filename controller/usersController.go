@@ -3,6 +3,7 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -28,6 +29,7 @@ type users struct {
 	FirstName string      `json:"first_name,omitempty"`
 	LastName  string      `json:"last_name,omitempty"`
 	EmailId   string      `json:"email_id,omitempty"`
+	JiraID    string      `json:"jira_id,omitempty"`
 	Role      models.Role `json:"role,omitempty"`
 	CreatedAt int64       `json:"created_at,omitempty"`
 	UpdatedAt int64       `json:"updated_at,omitempty"`
@@ -39,6 +41,7 @@ type loginResponse struct {
 	FirstName string      `json:"first_name"`
 	LastName  string      `json:"last_name"`
 	EmailId   string      `json:"email_id"`
+	JiraID    string      `json:"jira_id,omitempty"`
 	Token     string      `json:"token"`
 }
 
@@ -61,6 +64,7 @@ func CreateUsers(context *gin.Context) {
 		EmailId:   user.EmailId,
 		Password:  user.Password,
 		Role:      user.Role,
+		JiraID:    user.JiraID,
 	}
 
 	if err := models.CreateUser(models.DB, &newUser); err != nil {
@@ -105,6 +109,7 @@ func GetUsersByID(context *gin.Context) {
 		LastName:  user.LastName,
 		EmailId:   user.EmailId,
 		Role:      user.Role,
+		JiraID:    user.JiraID,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
@@ -118,6 +123,7 @@ func UpdateUsers(context *gin.Context) {
 		LastName  *string `json:"last_name"`
 		EmailId   *string `json:"email_id"`
 		Role      *string `json:"role"`
+		JiraID    *string `json:"jira_id"`
 	}
 
 	userID := context.Param("id")
@@ -154,6 +160,9 @@ func UpdateUsers(context *gin.Context) {
 	if input.EmailId != nil {
 		existingUser.EmailId = *input.EmailId
 	}
+	if input.JiraID != nil {
+		existingUser.JiraID = *input.JiraID
+	}
 	if input.Role != nil {
 		if *input.Role == "" {
 			context.JSON(http.StatusBadRequest, gin.H{"error": "Role is not defined"})
@@ -180,6 +189,7 @@ func UpdateUsers(context *gin.Context) {
 		LastName:  existingUser.LastName,
 		EmailId:   existingUser.EmailId,
 		Role:      existingUser.Role,
+		JiraID:    existingUser.JiraID,
 		CreatedAt: existingUser.CreatedAt,
 		UpdatedAt: existingUser.UpdatedAt,
 	}
@@ -266,6 +276,7 @@ func GetAllUsers(context *gin.Context) {
 			LastName:  user.LastName,
 			EmailId:   user.EmailId,
 			Role:      user.Role,
+			JiraID:    user.JiraID,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
 		})
@@ -281,6 +292,7 @@ func RegisterUser(context *gin.Context) {
 		EmailId   string      `json:"email_id"`
 		Password  string      `json:"password"`
 		Role      models.Role `json:"role"`
+		JiraID    string      `json:"jira_id,omitempty"`
 	}
 
 	body, err := io.ReadAll(context.Request.Body)
@@ -316,6 +328,7 @@ func RegisterUser(context *gin.Context) {
 		EmailId:   user.EmailId,
 		Password:  string(hashedPassword),
 		Role:      user.Role,
+		JiraID:    user.JiraID,
 	}
 
 	if err := models.CreateUser(models.DB, &newUser); err != nil {
@@ -350,6 +363,9 @@ func LoginUser(context *gin.Context) {
 	}
 
 	user, err := models.GetUserByEmail(models.DB, input.Email)
+
+	fmt.Println(user)
+
 	if err != nil || user == nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return

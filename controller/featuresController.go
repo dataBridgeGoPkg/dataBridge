@@ -12,33 +12,37 @@ import (
 )
 
 type Feature struct {
-	Title         string               `json:"title" binding:"required"`
-	Description   string               `json:"description" binding:"required"`
-	Status        models.StatusType    `json:"status" binding:"required"`
-	Health        models.FeatureHealth `json:"health,omitempty"`
-	StartTime     *int64               `json:"start_time,omitempty"`
-	EndTime       *int64               `json:"end_time,omitempty"`
-	Notes         string               `json:"notes,omitempty"`
-	AssignedUser  *int64               `json:"assigned_user,omitempty"` // Accepts int64 or null
-	FeatureDocUrl *string              `json:"feature_doc_url,omitempty"`
-	FigmaUrl      *string              `json:"figma_url,omitempty"`
-	Insights      *string              `json:"insights,omitempty"`
+	Title            string               `json:"title" binding:"required"`
+	Description      string               `json:"description" binding:"required"`
+	Status           models.StatusType    `json:"status" binding:"required"`
+	Health           models.FeatureHealth `json:"health,omitempty"`
+	StartTime        *int64               `json:"start_time,omitempty"`
+	EndTime          *int64               `json:"end_time,omitempty"`
+	Notes            string               `json:"notes,omitempty"`
+	AssignedUser     *int64               `json:"assigned_user,omitempty"` // Accepts int64 or null
+	FeatureDocUrl    *string              `json:"feature_doc_url,omitempty"`
+	FigmaUrl         *string              `json:"figma_url,omitempty"`
+	Insights         *string              `json:"insights,omitempty"`
+	JiraSync         *bool                `json:"jira_sync,omitempty"`
+	ProductBoardSync *bool                `json:"product_board_sync,omitempty"`
 }
 
 type response struct {
-	ID            int64                `json:"id"`
-	Title         string               `json:"title"`
-	Description   string               `json:"description"`
-	Status        models.StatusType    `json:"status"`
-	Health        models.FeatureHealth `json:"health,omitempty"`
-	StartTime     *int64               `json:"start_time,omitempty"`
-	EndTime       *int64               `json:"end_time,omitempty"`
-	Notes         *string              `json:"notes,omitempty"`
-	FeatureDocUrl *string              `json:"feature_doc_url,omitempty"`
-	FigmaUrl      *string              `json:"figma_url,omitempty"`
-	Insights      *string              `json:"insights,omitempty"`
-	CreatedAt     int64                `json:"created_at"`
-	UpdatedAt     int64                `json:"updated_at"`
+	ID               int64                `json:"id"`
+	Title            string               `json:"title"`
+	Description      string               `json:"description"`
+	Status           models.StatusType    `json:"status"`
+	Health           models.FeatureHealth `json:"health,omitempty"`
+	StartTime        *int64               `json:"start_time,omitempty"`
+	EndTime          *int64               `json:"end_time,omitempty"`
+	Notes            *string              `json:"notes,omitempty"`
+	FeatureDocUrl    *string              `json:"feature_doc_url,omitempty"`
+	FigmaUrl         *string              `json:"figma_url,omitempty"`
+	Insights         *string              `json:"insights,omitempty"`
+	JiraSync         *bool                `json:"jira_sync,omitempty"`
+	ProductBoardSync *bool                `json:"product_board_sync,omitempty"`
+	CreatedAt        int64                `json:"created_at"`
+	UpdatedAt        int64                `json:"updated_at"`
 }
 
 type FeatureAssignee struct {
@@ -84,16 +88,18 @@ func CreateFeatures(c *gin.Context) {
 
 	// Create a new Feature object
 	feature := models.Feature{
-		Title:         featureRequest.Title,
-		Description:   featureRequest.Description,
-		Status:        featureRequest.Status,
-		Health:        featureRequest.Health,
-		StartTime:     featureRequest.StartTime,
-		EndTime:       featureRequest.EndTime,
-		Notes:         &featureRequest.Notes,
-		FeatureDocUrl: featureRequest.FeatureDocUrl,
-		FigmaUrl:      featureRequest.FigmaUrl,
-		Insights:      featureRequest.Insights,
+		Title:            featureRequest.Title,
+		Description:      featureRequest.Description,
+		Status:           featureRequest.Status,
+		Health:           featureRequest.Health,
+		StartTime:        featureRequest.StartTime,
+		EndTime:          featureRequest.EndTime,
+		Notes:            &featureRequest.Notes,
+		FeatureDocUrl:    featureRequest.FeatureDocUrl,
+		FigmaUrl:         featureRequest.FigmaUrl,
+		Insights:         featureRequest.Insights,
+		JiraSync:         featureRequest.JiraSync,
+		ProductBoardSync: featureRequest.ProductBoardSync,
 	}
 
 	if err := models.CreateFeature(models.DB, &feature); err != nil {
@@ -102,19 +108,21 @@ func CreateFeatures(c *gin.Context) {
 	}
 
 	response := response{
-		ID:            feature.ID,
-		Title:         feature.Title,
-		Description:   feature.Description,
-		Status:        feature.Status,
-		Health:        feature.Health,
-		StartTime:     feature.StartTime,
-		EndTime:       feature.EndTime,
-		Notes:         feature.Notes,
-		FeatureDocUrl: feature.FeatureDocUrl,
-		FigmaUrl:      feature.FigmaUrl,
-		Insights:      feature.Insights,
-		CreatedAt:     feature.CreatedAt,
-		UpdatedAt:     feature.UpdatedAt,
+		ID:               feature.ID,
+		Title:            feature.Title,
+		Description:      feature.Description,
+		Status:           feature.Status,
+		Health:           feature.Health,
+		StartTime:        feature.StartTime,
+		EndTime:          feature.EndTime,
+		Notes:            feature.Notes,
+		FeatureDocUrl:    feature.FeatureDocUrl,
+		FigmaUrl:         feature.FigmaUrl,
+		Insights:         feature.Insights,
+		JiraSync:         feature.JiraSync,
+		ProductBoardSync: feature.ProductBoardSync,
+		CreatedAt:        feature.CreatedAt,
+		UpdatedAt:        feature.UpdatedAt,
 	}
 
 	c.JSON(http.StatusCreated, response)
@@ -143,19 +151,21 @@ func GetFeatureByID(c *gin.Context) {
 	}
 
 	response := response{
-		ID:            getFeature.ID,
-		Title:         getFeature.Title,
-		Description:   getFeature.Description,
-		Status:        getFeature.Status,
-		Health:        getFeature.Health,
-		StartTime:     getFeature.StartTime,
-		EndTime:       getFeature.EndTime,
-		Notes:         getFeature.Notes,
-		FeatureDocUrl: getFeature.FeatureDocUrl,
-		FigmaUrl:      getFeature.FigmaUrl,
-		Insights:      getFeature.Insights,
-		CreatedAt:     getFeature.CreatedAt,
-		UpdatedAt:     getFeature.UpdatedAt,
+		ID:               getFeature.ID,
+		Title:            getFeature.Title,
+		Description:      getFeature.Description,
+		Status:           getFeature.Status,
+		Health:           getFeature.Health,
+		StartTime:        getFeature.StartTime,
+		EndTime:          getFeature.EndTime,
+		Notes:            getFeature.Notes,
+		FeatureDocUrl:    getFeature.FeatureDocUrl,
+		FigmaUrl:         getFeature.FigmaUrl,
+		Insights:         getFeature.Insights,
+		JiraSync:         getFeature.JiraSync,
+		ProductBoardSync: getFeature.ProductBoardSync,
+		CreatedAt:        getFeature.CreatedAt,
+		UpdatedAt:        getFeature.UpdatedAt,
 	}
 	c.JSON(http.StatusOK, response)
 }
@@ -225,16 +235,18 @@ func DeletFeatureById(c *gin.Context) {
 func UpdateFeatureById(c *gin.Context) {
 
 	type UpdateFeatureInput struct {
-		Title         *string               `json:"title"`
-		Description   *string               `json:"description"`
-		Status        *models.StatusType    `json:"status" binding:"required"`
-		Health        *models.FeatureHealth `json:"health,omitempty"`
-		StartTime     *int64                `json:"start_time"`
-		EndTime       *int64                `json:"end_time"`
-		Notes         *string               `json:"notes"`
-		FeatureDocUrl *string               `json:"feature_doc_url,omitempty"`
-		FigmaUrl      *string               `json:"figma_url,omitempty"`
-		Insights      *string               `json:"insights,omitempty"`
+		Title            *string               `json:"title"`
+		Description      *string               `json:"description"`
+		Status           *models.StatusType    `json:"status" binding:"required"`
+		Health           *models.FeatureHealth `json:"health,omitempty"`
+		StartTime        *int64                `json:"start_time"`
+		EndTime          *int64                `json:"end_time"`
+		Notes            *string               `json:"notes"`
+		FeatureDocUrl    *string               `json:"feature_doc_url,omitempty"`
+		FigmaUrl         *string               `json:"figma_url,omitempty"`
+		Insights         *string               `json:"insights,omitempty"`
+		JiraSync         *bool                 `json:"jira_sync,omitempty"`
+		ProductBoardSync *bool                 `json:"product_board_sync,omitempty"`
 	}
 
 	// Parse feature ID
@@ -296,6 +308,12 @@ func UpdateFeatureById(c *gin.Context) {
 	if input.Insights != nil {
 		existingFeature.Insights = input.Insights
 	}
+	if input.JiraSync != nil {
+		existingFeature.JiraSync = input.JiraSync
+	}
+	if input.ProductBoardSync != nil {
+		existingFeature.ProductBoardSync = input.ProductBoardSync
+	}
 
 	// Update in DB
 	if err := models.UpdateFeature(models.DB, existingFeature); err != nil {
@@ -305,19 +323,21 @@ func UpdateFeatureById(c *gin.Context) {
 
 	// Response
 	updateResponse := response{
-		ID:            existingFeature.ID,
-		Title:         existingFeature.Title,
-		Description:   existingFeature.Description,
-		Status:        existingFeature.Status,
-		Health:        existingFeature.Health,
-		StartTime:     existingFeature.StartTime,
-		EndTime:       existingFeature.EndTime,
-		Notes:         existingFeature.Notes,
-		FeatureDocUrl: existingFeature.FeatureDocUrl,
-		FigmaUrl:      existingFeature.FigmaUrl,
-		Insights:      existingFeature.Insights,
-		CreatedAt:     existingFeature.CreatedAt,
-		UpdatedAt:     existingFeature.UpdatedAt,
+		ID:               existingFeature.ID,
+		Title:            existingFeature.Title,
+		Description:      existingFeature.Description,
+		Status:           existingFeature.Status,
+		Health:           existingFeature.Health,
+		StartTime:        existingFeature.StartTime,
+		EndTime:          existingFeature.EndTime,
+		Notes:            existingFeature.Notes,
+		FeatureDocUrl:    existingFeature.FeatureDocUrl,
+		FigmaUrl:         existingFeature.FigmaUrl,
+		Insights:         existingFeature.Insights,
+		JiraSync:         existingFeature.JiraSync,
+		ProductBoardSync: existingFeature.ProductBoardSync,
+		CreatedAt:        existingFeature.CreatedAt,
+		UpdatedAt:        existingFeature.UpdatedAt,
 	}
 
 	c.JSON(http.StatusOK, updateResponse)
@@ -336,19 +356,21 @@ func GetAllFeatures(c *gin.Context) {
 	var responses []response
 	for _, f := range features {
 		responses = append(responses, response{
-			ID:            f.ID,
-			Title:         f.Title,
-			Description:   f.Description,
-			Status:        f.Status,
-			Health:        f.Health,
-			StartTime:     f.StartTime,
-			EndTime:       f.EndTime,
-			Notes:         f.Notes,
-			FeatureDocUrl: f.FeatureDocUrl,
-			FigmaUrl:      f.FigmaUrl,
-			Insights:      f.Insights,
-			CreatedAt:     f.CreatedAt,
-			UpdatedAt:     f.UpdatedAt,
+			ID:               f.ID,
+			Title:            f.Title,
+			Description:      f.Description,
+			Status:           f.Status,
+			Health:           f.Health,
+			StartTime:        f.StartTime,
+			EndTime:          f.EndTime,
+			Notes:            f.Notes,
+			FeatureDocUrl:    f.FeatureDocUrl,
+			FigmaUrl:         f.FigmaUrl,
+			Insights:         f.Insights,
+			JiraSync:         f.JiraSync,
+			ProductBoardSync: f.ProductBoardSync,
+			CreatedAt:        f.CreatedAt,
+			UpdatedAt:        f.UpdatedAt,
 		})
 	}
 

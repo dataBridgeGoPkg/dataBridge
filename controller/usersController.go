@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"example.com/Product_RoadMap/models"
@@ -117,7 +118,6 @@ func GetUsersByID(context *gin.Context) {
 }
 
 func UpdateUsers(context *gin.Context) {
-
 	type UpdateUserInput struct {
 		FirstName *string `json:"first_name"`
 		LastName  *string `json:"last_name"`
@@ -126,6 +126,7 @@ func UpdateUsers(context *gin.Context) {
 		JiraID    *string `json:"jira_id"`
 	}
 
+	// Parse user ID from path
 	userID := context.Param("id")
 	userIDInt := utils.ParseID(userID)
 	if userIDInt == 0 {
@@ -133,7 +134,7 @@ func UpdateUsers(context *gin.Context) {
 		return
 	}
 
-	// Get existing user from DB
+	// Fetch existing user from DB
 	existingUser, err := models.GetUserByID(models.DB, userIDInt)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
@@ -144,13 +145,14 @@ func UpdateUsers(context *gin.Context) {
 		return
 	}
 
+	// Bind incoming JSON to struct
 	var input UpdateUserInput
 	if err := context.ShouldBindJSON(&input); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format", "details": err.Error()})
 		return
 	}
 
-	// Merge provided fields into the existing user
+	// Update fields only if provided
 	if input.FirstName != nil {
 		existingUser.FirstName = *input.FirstName
 	}
@@ -160,29 +162,38 @@ func UpdateUsers(context *gin.Context) {
 	if input.EmailId != nil {
 		existingUser.EmailId = *input.EmailId
 	}
+
 	if input.JiraID != nil {
-		existingUser.JiraID = input.JiraID
+		if *input.JiraID == "" {
+			existingUser.JiraID = nil
+		} else {
+			existingUser.JiraID = input.JiraID
+		}
 	}
+
 	if input.Role != nil {
-		if *input.Role == "" {
-			context.JSON(http.StatusBadRequest, gin.H{"error": "Role is not defined"})
+		trimmedRole := strings.TrimSpace(*input.Role)
+		if trimmedRole == "" {
+			context.JSON(http.StatusBadRequest, gin.H{"error": "Role cannot be empty"})
 			return
 		}
 
-		role := models.Role(*input.Role)
+		role := models.Role(trimmedRole)
 		if !role.IsValid() {
 			context.JSON(http.StatusBadRequest, gin.H{"error": "Not a valid role"})
 			return
 		}
-		existingUser.Role = models.Role(*input.Role)
+
+		existingUser.Role = role
 	}
 
-	// Update in DB
+	// Save updated user to DB
 	if err := models.UpdateUser(models.DB, existingUser); err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
 		return
 	}
 
+	// Prepare response
 	response := users{
 		ID:        existingUser.ID,
 		FirstName: existingUser.FirstName,
@@ -193,34 +204,9 @@ func UpdateUsers(context *gin.Context) {
 		CreatedAt: existingUser.CreatedAt,
 		UpdatedAt: existingUser.UpdatedAt,
 	}
+
 	context.JSON(http.StatusOK, response)
 }
-
-// func DeleteUsers(context *gin.Context) {
-// 	id := context.Param("id")
-// 	userID := utils.ParseID(id)
-// 	if userID == 0 {
-// 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-// 		return
-// 	}
-
-// 	user, err := models.GetUserByID(models.DB, userID)
-// 	if err != nil {
-// 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
-// 		return
-// 	}
-// 	if user == nil {
-// 		context.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-// 		return
-// 	}
-
-// 	if err := models.DeleteUser(models.DB, userID); err != nil {
-// 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
-// 		return
-// 	}
-
-// 	context.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
-// }
 
 func DeleteUsers(context *gin.Context) {
 	id := context.Param("id")

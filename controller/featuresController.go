@@ -63,6 +63,27 @@ type AssigneeFeature struct {
 
 func CreateFeatures(c *gin.Context) {
 
+	userId := c.Keys["user_id"].(int64)
+
+	//Check if the user is Admin and Developer and has permission to create a feature
+
+	CheckUser, err := models.GetUserByID(models.DB, userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+	if CheckUser == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	//Only Admin and Developer can create a feature
+	if CheckUser.Role != "ADMIN" && CheckUser.Role != "DEVELOPER" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to create a feature"})
+		return
+	}
+
+	//Check the request body
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -73,22 +94,6 @@ func CreateFeatures(c *gin.Context) {
 	var featureRequest Feature
 	if err := json.Unmarshal(body, &featureRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON", "details": err.Error()})
-		return
-	}
-	// Create a new Feature object
-	var userID int64
-	if featureRequest.AssignedUser != nil {
-		userID = *featureRequest.AssignedUser // Dereference the pointer to get the actual value
-	}
-
-	//Check if the assigned userID exists
-	checkUser, err := models.GetUserByID(models.DB, userID)
-	if checkUser == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
-	}
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
 		return
 	}
 

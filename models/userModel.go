@@ -129,10 +129,18 @@ func UpdateUser(db *sql.DB, user *User) error {
 
 	query := `
 	UPDATE users
-	SET first_name = ?, last_name = ?, email_id = ?, role = ?, jira_id = ?, updated_at = ?
+	SET first_name = ?, last_name = ?, email_id = ?, jira_id = ?, role = ?, updated_at = ?
 	WHERE id = ?`
 
-	_, err := db.Exec(query, user.FirstName, user.LastName, user.EmailId, user.JiraID, user.Role, user.UpdatedAt, user.ID)
+	_, err := db.Exec(query,
+		user.FirstName,
+		user.LastName,
+		user.EmailId,
+		user.JiraID,
+		user.Role,
+		user.UpdatedAt,
+		user.ID,
+	)
 	return err
 }
 

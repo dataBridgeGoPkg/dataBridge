@@ -29,7 +29,7 @@ type users struct {
 	FirstName string      `json:"first_name,omitempty"`
 	LastName  string      `json:"last_name,omitempty"`
 	EmailId   string      `json:"email_id,omitempty"`
-	JiraID    string      `json:"jira_id,omitempty"`
+	JiraID    *string     `json:"jira_id,omitempty"`
 	Role      models.Role `json:"role,omitempty"`
 	CreatedAt int64       `json:"created_at,omitempty"`
 	UpdatedAt int64       `json:"updated_at,omitempty"`
@@ -161,7 +161,7 @@ func UpdateUsers(context *gin.Context) {
 		existingUser.EmailId = *input.EmailId
 	}
 	if input.JiraID != nil {
-		existingUser.JiraID = *input.JiraID
+		existingUser.JiraID = input.JiraID
 	}
 	if input.Role != nil {
 		if *input.Role == "" {
@@ -328,7 +328,7 @@ func RegisterUser(context *gin.Context) {
 		EmailId:   user.EmailId,
 		Password:  string(hashedPassword),
 		Role:      user.Role,
-		JiraID:    user.JiraID,
+		JiraID:    &user.JiraID,
 	}
 
 	if err := models.CreateUser(models.DB, &newUser); err != nil {

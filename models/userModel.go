@@ -25,15 +25,15 @@ func (r Role) IsValid() bool {
 
 // User represents a user in the system
 type User struct {
-	ID        int64  `json:"id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	EmailId   string `json:"email_id"`
-	Role      Role   `json:"role,omitempty"`
-	Password  string `json:"-"`
-	JiraID    string `json:"jira_id,omitempty"`
-	CreatedAt int64  `json:"created_at"`
-	UpdatedAt int64  `json:"updated_at"`
+	ID        int64   `json:"id"`
+	FirstName string  `json:"first_name"`
+	LastName  string  `json:"last_name"`
+	EmailId   string  `json:"email_id"`
+	Role      Role    `json:"role,omitempty"`
+	Password  string  `json:"-"`
+	JiraID    *string `json:"jira_id,omitempty"`
+	CreatedAt int64   `json:"created_at"`
+	UpdatedAt int64   `json:"updated_at"`
 }
 
 // CreateUsersTable creates the users table with BIGINT timestamps and a role column
@@ -129,10 +129,18 @@ func UpdateUser(db *sql.DB, user *User) error {
 
 	query := `
 	UPDATE users
-	SET first_name = ?, last_name = ?, email_id = ?, role = ?, jira_id = ?, updated_at = ?
+	SET first_name = ?, last_name = ?, email_id = ?, jira_id = ?, role = ?, updated_at = ?
 	WHERE id = ?`
 
-	_, err := db.Exec(query, user.FirstName, user.LastName, user.EmailId, user.JiraID, user.Role, user.UpdatedAt, user.ID)
+	_, err := db.Exec(query,
+		user.FirstName,
+		user.LastName,
+		user.EmailId,
+		user.JiraID,
+		user.Role,
+		user.UpdatedAt,
+		user.ID,
+	)
 	return err
 }
 

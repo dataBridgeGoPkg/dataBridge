@@ -448,6 +448,7 @@ func GetAllFeaturesWithAssginness(c *gin.Context) {
 			ProductBoardID:   f.ProductBoardID,
 			BusinessCase:     f.BusinessCase,
 			AssignedUsers:    f.AssignedUsers,
+			Health:           f.Health,
 			CreatedAt:        f.CreatedAt,
 			UpdatedAt:        f.UpdatedAt,
 		})

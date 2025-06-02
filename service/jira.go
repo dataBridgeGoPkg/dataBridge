@@ -128,6 +128,62 @@ func CreateJiraIssue(jiraBody JiraBody) (string, error) {
 	return string(body), nil
 }
 
+func UpdateJiraIssue(issueID string, jiraBody map[string]interface{}) (string, error) {
+	// Get environment variables
+	jiraBaseURL := os.Getenv("JIRA_API_URL")
+	jiraUsername := os.Getenv("JIRA_USER_EMAIL")
+	jiraAPIToken := os.Getenv("JIRA_API_TOKEN")
+
+	if jiraBaseURL == "" || jiraUsername == "" || jiraAPIToken == "" {
+		return "", fmt.Errorf("missing required Jira environment variables")
+	}
+
+	// Build the full URL with issue ID
+	updateURL := fmt.Sprintf("%s/%s", jiraBaseURL, issueID)
+
+	// Encode username:token to Base64 for Basic Auth
+	authString := jiraUsername + ":" + jiraAPIToken
+	authEncoded := base64.StdEncoding.EncodeToString([]byte(authString))
+	authHeader := "Basic " + authEncoded
+
+	// Convert map to JSON
+	jsonData, err := json.Marshal(jiraBody)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal Jira body: %v", err)
+	}
+
+	// Create HTTP PUT request
+	req, err := http.NewRequest("PUT", updateURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", fmt.Errorf("failed to create HTTP request: %v", err)
+	}
+
+	// Set headers
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", authHeader)
+
+	// Send the request
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to send HTTP request: %v", err)
+	}
+	defer res.Body.Close()
+
+	// Read response
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response body: %v", err)
+	}
+
+	if res.StatusCode >= 400 {
+		return "", fmt.Errorf("jira API error (%d): %s", res.StatusCode, string(body))
+	}
+
+	return string(body), nil
+}
+
 func StructureJiraBody(input JiraInput) JiraBody {
 	// Map components
 	var components []Component
@@ -162,6 +218,50 @@ func StructureJiraBody(input JiraInput) JiraBody {
 			Labels:      input.Labels,
 			Project:     Project{ID: input.Project},
 			Summary:     input.Summary,
+		},
+	}
+}
+
+func UpdateStructureJiraBody(input JiraInput) map[string]interface{} {
+	// Map components
+	var components []map[string]string
+	for _, c := range input.Components {
+		components = append(components, map[string]string{"id": c})
+	}
+
+	// Structure description
+	description := map[string]interface{}{
+		"type":    "doc",
+		"version": 1,
+		"content": []map[string]interface{}{
+			{
+				"type": "paragraph",
+				"content": []map[string]interface{}{
+					{
+						"type": "text",
+						"text": input.Description,
+					},
+				},
+			},
+		},
+	}
+
+	// Final structured body (dynamic input)
+	return map[string]interface{}{
+		"fields": map[string]interface{}{
+			"assignee": map[string]string{
+				"accountId": input.Assignee,
+			},
+			"components": components,
+			"issuetype": map[string]string{
+				"id": input.IssueType,
+			},
+			"description": description,
+			"labels":      input.Labels,
+			"project": map[string]string{
+				"id": input.Project,
+			},
+			"summary": input.Summary,
 		},
 	}
 }

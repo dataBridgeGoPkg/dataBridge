@@ -1,0 +1,37 @@
+{
+  "data": [
+    {
+      "id": "912de3e8-f5f0-4486-83a5-a26d6fbf8c7f",
+      "name": "New idea",
+      "completed": false
+    },
+    {
+      "id": "92047a40-05c8-46cb-bd99-9877f4d4882c",
+      "name": "Planned",
+      "completed": false
+    },
+    {
+      "id": "942251fe-eb90-4fde-9ad8-b2207930b974",
+      "name": "In progress",
+      "completed": false
+    },
+    {
+      "id": "c892326d-1dac-4dad-a7fb-bb130c659d4d",
+      "name": "Ready",
+      "completed": false
+    },
+    {
+      "id": "de5d91e1-b5e7-4b57-b103-3e858ecdda8b",
+      "name": "Released",
+      "completed": true
+    },
+    {
+      "id": "546185d1-b330-46b8-9464-bb9f052e3c2e",
+      "name": "Declined",
+      "completed": true
+    }
+  ],
+  "links": {
+    "next": null
+  }
+}

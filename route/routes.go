@@ -56,6 +56,7 @@ func RegisterRoutes(router *gin.Engine) {
 		protected.POST("/productBoard", controller.CreateProductBoardFeature)
 		protected.POST("/jira", controller.CreateJiraIssue)
 		protected.PUT("/jira/:id", controller.UpdateJiraIssue)
+		protected.GET("/jira/:id", controller.GetJiraIssueByID)
 
 	}
 }

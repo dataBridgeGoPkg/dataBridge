@@ -114,3 +114,21 @@ func UpdateJiraIssue(c *gin.Context) {
 
 	c.JSON(200, gin.H{"message": "Jira issue updated successfully", "response": response})
 }
+
+func GetJiraIssueByID(c *gin.Context) {
+	// Get the issue ID from the URL parameters
+	issueID := c.Param("id")
+	if issueID == "" {
+		c.JSON(400, gin.H{"error": "Missing Jira issue ID in URL parameter"})
+		return
+	}
+
+	// Call service to get Jira Issue
+	response, err := service.GetJiraIssueWithID(issueID)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Failed to retrieve Jira issue", "details": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Jira issue retrieved successfully", "response": response})
+}

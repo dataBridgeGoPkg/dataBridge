@@ -54,6 +54,12 @@ func DeleteFeatureAssigneeWithUserId(db *sql.DB, id int64) error {
 	return err
 }
 
+func DeleteFeatureUserAssigneeWithUserId(db *sql.DB, id int64, featureId int64) error {
+	query := `DELETE FROM feature_assignees WHERE user_id = ? AND feature_id = ?`
+	_, err := db.Exec(query, id, featureId)
+	return err
+}
+
 func DeleteFeatureAssigneeWithFeatureId(db *sql.DB, id int64) error {
 	query := `DELETE FROM feature_assignees WHERE feature_id = ?`
 	_, err := db.Exec(query, id)

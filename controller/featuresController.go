@@ -619,7 +619,7 @@ func DeleteAssigneeFromAFeature(c *gin.Context) {
 	}
 
 	//Delete the feature assignee
-	if err := models.DeleteFeatureAssigneeWithUserId(models.DB, requestBody.UserID); err != nil {
+	if err := models.DeleteFeatureUserAssigneeWithUserId(models.DB, requestBody.UserID, requestBody.FeatureID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error (delete assignment)", "details": err.Error()})
 		return
 	}

@@ -26,6 +26,7 @@ type Feature struct {
 	JiraSync         *bool                `json:"jira_sync,omitempty"`
 	ProductBoardSync *bool                `json:"product_board_sync,omitempty"`
 	JiraID           *string              `json:"jira_id,omitempty"`
+	JiraUrl          *string              `json:"jira_url,omitempty"`
 	ProductBoardID   *string              `json:"product_board_id,omitempty"`
 	BusinessCase     *string              `json:"business_case,omitempty"`
 }
@@ -45,6 +46,7 @@ type response struct {
 	JiraSync         *bool                `json:"jira_sync,omitempty"`
 	ProductBoardSync *bool                `json:"product_board_sync,omitempty"`
 	JiraID           *string              `json:"jira_id,omitempty"`
+	JiraUrl          *string              `json:"jira_url,omitempty"`
 	ProductBoardID   *string              `json:"product_board_id,omitempty"`
 	BusinessCase     *string              `json:"business_case,omitempty"`
 	CreatedAt        int64                `json:"created_at"`
@@ -112,6 +114,7 @@ func CreateFeatures(c *gin.Context) {
 		JiraSync:         featureRequest.JiraSync,
 		ProductBoardSync: featureRequest.ProductBoardSync,
 		JiraID:           featureRequest.JiraID,
+		JiraUrl:          featureRequest.JiraUrl,
 		ProductBoardID:   featureRequest.ProductBoardID,
 		BusinessCase:     featureRequest.BusinessCase,
 	}
@@ -136,6 +139,7 @@ func CreateFeatures(c *gin.Context) {
 		JiraSync:         feature.JiraSync,
 		ProductBoardSync: feature.ProductBoardSync,
 		JiraID:           feature.JiraID,
+		JiraUrl:          feature.JiraUrl,
 		ProductBoardID:   feature.ProductBoardID,
 		BusinessCase:     feature.BusinessCase,
 		CreatedAt:        feature.CreatedAt,
@@ -182,6 +186,7 @@ func GetFeatureByID(c *gin.Context) {
 		JiraSync:         getFeature.JiraSync,
 		ProductBoardSync: getFeature.ProductBoardSync,
 		JiraID:           getFeature.JiraID,
+		JiraUrl:          getFeature.JiraUrl,
 		ProductBoardID:   getFeature.ProductBoardID,
 		BusinessCase:     getFeature.BusinessCase,
 		CreatedAt:        getFeature.CreatedAt,
@@ -189,33 +194,6 @@ func GetFeatureByID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response)
 }
-
-// func DeletFeatureById(c *gin.Context) {
-// 	id := c.Param("id")
-// 	featureID := utils.ParseID(id)
-
-// 	if featureID == 0 {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-// 		return
-// 	}
-
-// 	//Check if the feature exists
-// 	getFeature, err := models.GetFeatureByID(models.DB, featureID)
-// 	if getFeature == nil {
-// 		c.JSON(http.StatusNotFound, gin.H{"error": "Feature not found"})
-// 		return
-// 	}
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
-// 		return
-// 	}
-
-// 	if err := models.DeleteFeature(models.DB, featureID); err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"message": "Feature deleted successfully"})
-// }
 
 func DeletFeatureById(c *gin.Context) {
 	id := c.Param("id")
@@ -268,6 +246,7 @@ func UpdateFeatureById(c *gin.Context) {
 		JiraSync         *bool                 `json:"jira_sync,omitempty"`
 		ProductBoardSync *bool                 `json:"product_board_sync,omitempty"`
 		JiraID           *string               `json:"jira_id,omitempty"`
+		JiraUrl          *string               `json:"jira_url,omitempty"`
 		ProductBoardID   *string               `json:"product_board_id,omitempty"`
 		BusinessCase     *string               `json:"business_case,omitempty"`
 	}
@@ -340,6 +319,9 @@ func UpdateFeatureById(c *gin.Context) {
 	if input.JiraID != nil {
 		existingFeature.JiraID = input.JiraID
 	}
+	if input.JiraUrl != nil {
+		existingFeature.JiraUrl = input.JiraUrl
+	}
 	if input.ProductBoardID != nil {
 		existingFeature.ProductBoardID = input.ProductBoardID
 	}
@@ -369,6 +351,7 @@ func UpdateFeatureById(c *gin.Context) {
 		JiraSync:         existingFeature.JiraSync,
 		ProductBoardSync: existingFeature.ProductBoardSync,
 		JiraID:           existingFeature.JiraID,
+		JiraUrl:          existingFeature.JiraUrl,
 		ProductBoardID:   existingFeature.ProductBoardID,
 		BusinessCase:     existingFeature.BusinessCase,
 		CreatedAt:        existingFeature.CreatedAt,
@@ -405,6 +388,7 @@ func GetAllFeatures(c *gin.Context) {
 			JiraSync:         f.JiraSync,
 			ProductBoardSync: f.ProductBoardSync,
 			JiraID:           f.JiraID,
+			JiraUrl:          f.JiraUrl,
 			ProductBoardID:   f.ProductBoardID,
 			BusinessCase:     f.BusinessCase,
 			CreatedAt:        f.CreatedAt,
@@ -445,6 +429,7 @@ func GetAllFeaturesWithAssginness(c *gin.Context) {
 			JiraSync:         f.JiraSync,
 			ProductBoardSync: f.ProductBoardSync,
 			JiraID:           f.JiraID,
+			JiraUrl:          f.JiraUrl,
 			ProductBoardID:   f.ProductBoardID,
 			BusinessCase:     f.BusinessCase,
 			AssignedUsers:    f.AssignedUsers,

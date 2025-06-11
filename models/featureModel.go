@@ -59,6 +59,7 @@ type Feature struct {
 	JiraSync         *bool         `json:"jira_sync,omitempty"`
 	ProductBoardSync *bool         `json:"product_board_sync,omitempty"`
 	JiraID           *string       `json:"jira_id,omitempty"`
+	JiraUrl          *string       `json:"jira_url,omitempty"`
 	ProductBoardID   *string       `json:"feature_doc_id,omitempty"`
 	BusinessCase     *string       `json:"business_case,omitempty"`
 	CreatedAt        int64         `json:"created_at,omitempty"`
@@ -82,6 +83,7 @@ func CreateFeaturesTable(db *sql.DB) error {
 		jira_sync BOOLEAN DEFAULT FALSE,
 		product_board_sync BOOLEAN DEFAULT FALSE,
 		jira_id VARCHAR(255), 
+		jira_url VARCHAR(255),
 		product_board_id VARCHAR(255), 
 		business_case TEXT,
 		created_at BIGINT NOT NULL,
@@ -108,6 +110,7 @@ type FeatureModelWithUserName struct {
 	JiraSync         sql.NullBool
 	ProductBoardSync sql.NullBool
 	JiraID           sql.NullString
+	JiraUrl          sql.NullString
 	ProductBoardID   sql.NullString
 	BusinessCase     sql.NullString
 	CreatedAt        int64
@@ -126,17 +129,18 @@ type FeatureWithAssignedUsers struct {
 	ID               int64                `json:"id"`
 	Title            string               `json:"title"`
 	Description      string               `json:"description"`
-	Status           string               `json:"status"` // Consider using your StatusType here for consistency
-	Health           string               `json:"health"` // Consider using your FeatureHealth here for consistency
+	Status           string               `json:"status"`
+	Health           string               `json:"health"`
 	StartTime        sql.NullInt64        `json:"start_time,omitempty"`
 	EndTime          sql.NullInt64        `json:"end_time,omitempty"`
-	Notes            sql.NullString       `json:"notes,omitempty"` // Assuming notes can be NULL
+	Notes            sql.NullString       `json:"notes,omitempty"`
 	FeatureDocUrl    sql.NullString       `json:"feature_doc_url,omitempty"`
 	FigmaUrl         sql.NullString       `json:"figma_url,omitempty"`
 	Insights         sql.NullString       `json:"insights,omitempty"`
 	JiraSync         sql.NullBool         `json:"jira_sync,omitempty"`
 	ProductBoardSync sql.NullBool         `json:"product_board_sync,omitempty"`
 	JiraID           sql.NullString       `json:"jira_id,omitempty"`          // Optional field for Jira ID
+	JiraUrl          sql.NullString       `json:"jira_url,omitempty"`         // Optional field for Jira URL
 	ProductBoardID   sql.NullString       `json:"product_board_id,omitempty"` // Optional field for Feature Document ID
 	BusinessCase     sql.NullString       `json:"business_case,omitempty"`    // Optional field for Bussiness Case
 	AssignedUsers    []UserInfoForFeature `json:"assigned_users"`
@@ -162,6 +166,7 @@ func GetAllFeaturesWithUserName(db *sql.DB) ([]*FeatureWithAssignedUsers, error)
 		f.jira_sync,
 		f.product_board_sync,
 		f.jira_id,
+		f.jira_url,
 		f.product_board_id,
 		f.business_case,
         f.created_at AS feature_created_at,
@@ -205,6 +210,7 @@ func GetAllFeaturesWithUserName(db *sql.DB) ([]*FeatureWithAssignedUsers, error)
 		var jiraSync sql.NullBool
 		var productBoardSync sql.NullBool
 		var jiraID sql.NullString
+		var jiraUrl sql.NullString
 		var productBoardID sql.NullString
 		var BusinessCase sql.NullString
 		var featureCreatedAt int64
@@ -230,6 +236,7 @@ func GetAllFeaturesWithUserName(db *sql.DB) ([]*FeatureWithAssignedUsers, error)
 			&jiraSync,
 			&productBoardSync,
 			&jiraID,
+			&jiraUrl,
 			&productBoardID,
 			&BusinessCase,
 			&featureCreatedAt,
@@ -261,6 +268,7 @@ func GetAllFeaturesWithUserName(db *sql.DB) ([]*FeatureWithAssignedUsers, error)
 				JiraSync:         jiraSync,
 				ProductBoardSync: productBoardSync,
 				JiraID:           jiraID,
+				JiraUrl:          jiraUrl,
 				ProductBoardID:   productBoardID,
 				BusinessCase:     BusinessCase,
 				CreatedAt:        featureCreatedAt,
@@ -356,9 +364,9 @@ func CreateFeature(db *sql.DB, feature *Feature) error {
 
 	query := `
 	INSERT INTO features (
-		title, description, status, health, start_time, end_time, notes, feature_doc_url, figma_url, insights, jira_sync, product_board_sync, jira_id, product_board_id, business_case, created_at, updated_at
+		title, description, status, health, start_time, end_time, notes, feature_doc_url, figma_url, insights, jira_sync, product_board_sync, jira_id, jira_url,  product_board_id, business_case, created_at, updated_at
 	)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := db.Exec(query,
 		feature.Title,
@@ -374,6 +382,7 @@ func CreateFeature(db *sql.DB, feature *Feature) error {
 		feature.JiraSync,
 		feature.ProductBoardSync,
 		feature.JiraID,
+		feature.JiraUrl,
 		feature.ProductBoardID,
 		feature.BusinessCase,
 		feature.CreatedAt,
@@ -390,7 +399,7 @@ func CreateFeature(db *sql.DB, feature *Feature) error {
 func GetFeatureByID(db *sql.DB, id int64) (*Feature, error) {
 	query := `
 	SELECT 
-		id, title, description, status, health, start_time, end_time, notes, feature_doc_url, figma_url, insights, jira_sync, product_board_sync, jira_id, product_board_id, business_case, created_at, updated_at
+		id, title, description, status, health, start_time, end_time, notes, feature_doc_url, figma_url, insights, jira_sync, product_board_sync, jira_id, jira_url, product_board_id, business_case, created_at, updated_at
 	FROM features
 	WHERE id = ?`
 
@@ -411,6 +420,7 @@ func GetFeatureByID(db *sql.DB, id int64) (*Feature, error) {
 		&feature.JiraSync,
 		&feature.ProductBoardSync,
 		&feature.JiraID,
+		&feature.JiraUrl,
 		&feature.ProductBoardID,
 		&feature.BusinessCase,
 		&feature.CreatedAt,
@@ -433,7 +443,7 @@ func UpdateFeature(db *sql.DB, feature *Feature) error {
 	query := `
 	UPDATE features
 	SET title = ?, description = ?, status = ?, health = ?, start_time = ?, end_time = ?, 
-		notes = ?, feature_doc_url = ?, figma_url = ?, insights = ?, jira_sync = ?, product_board_sync = ?, jira_id = ?, product_board_id = ?, business_case = ?, updated_at = ?
+		notes = ?, feature_doc_url = ?, figma_url = ?, insights = ?, jira_sync = ?, product_board_sync = ?, jira_id = ?, jira_url = ?, product_board_id = ?, business_case = ?, updated_at = ?
 	WHERE id = ?`
 
 	_, err := db.Exec(query,
@@ -450,6 +460,7 @@ func UpdateFeature(db *sql.DB, feature *Feature) error {
 		feature.JiraSync,
 		feature.ProductBoardSync,
 		feature.JiraID,
+		feature.JiraUrl,
 		feature.ProductBoardID,
 		feature.BusinessCase,
 		feature.UpdatedAt,
@@ -466,7 +477,7 @@ func DeleteFeature(db *sql.DB, id int64) error {
 func GetAllFeatures(db *sql.DB) ([]*Feature, error) {
 	query := `
 	SELECT 
-		id, title, description, status, health, start_time, end_time, notes, feature_doc_url, figma_url, insights, jira_sync, product_board_sync, jira_id, product_board_id, business_case, created_at, updated_at
+		id, title, description, status, health, start_time, end_time, notes, feature_doc_url, figma_url, insights, jira_sync, product_board_sync, jira_id, jira_url, product_board_id, business_case, created_at, updated_at
 	FROM features`
 
 	rows, err := db.Query(query)
@@ -493,6 +504,7 @@ func GetAllFeatures(db *sql.DB) ([]*Feature, error) {
 			&feature.JiraSync,
 			&feature.ProductBoardSync,
 			&feature.JiraID,
+			&feature.JiraUrl,
 			&feature.ProductBoardID,
 			&feature.BusinessCase,
 			&feature.CreatedAt,

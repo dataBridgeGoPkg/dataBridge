@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"example.com/Product_RoadMap/models"
+	"example.com/Product_RoadMap/service"
 	"example.com/Product_RoadMap/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +17,7 @@ type Feature struct {
 	Description      string               `json:"description" binding:"required"`
 	Status           models.StatusType    `json:"status" binding:"required"`
 	Health           models.FeatureHealth `json:"health,omitempty"`
+	Tier             models.FeatureTier   `json:"tier,omitempty"`
 	StartTime        *int64               `json:"start_time,omitempty"`
 	EndTime          *int64               `json:"end_time,omitempty"`
 	Notes            string               `json:"notes,omitempty"`
@@ -37,6 +39,7 @@ type response struct {
 	Description      string               `json:"description"`
 	Status           models.StatusType    `json:"status"`
 	Health           models.FeatureHealth `json:"health,omitempty"`
+	Tier             models.FeatureTier   `json:"tier,omitempty"`
 	StartTime        *int64               `json:"start_time,omitempty"`
 	EndTime          *int64               `json:"end_time,omitempty"`
 	Notes            *string              `json:"notes,omitempty"`
@@ -63,73 +66,152 @@ type AssigneeFeature struct {
 	UserID    int64 `json:"user_id"`
 }
 
-func CreateFeatures(c *gin.Context) {
+type FeatureRequestBody struct {
+	Title            string    `json:"title"`
+	Description      string    `json:"description"`
+	Status           string    `json:"status"`
+	StartTime        *int64    `json:"start_time,omitempty"`
+	EndTime          *int64    `json:"end_time,omitempty"`
+	Notes            string    `json:"notes,omitempty"`
+	AssignedUser     *int64    `json:"assigned_user,omitempty"`
+	FeatureDocUrl    *string   `json:"feature_doc_url,omitempty"`
+	FigmaUrl         *string   `json:"figma_url,omitempty"`
+	Insights         *string   `json:"insights,omitempty"`
+	JiraSync         *bool     `json:"jira_sync,omitempty"`
+	ProductBoardSync *bool     `json:"product_board_sync,omitempty"`
+	JiraID           *string   `json:"jira_id,omitempty"`
+	JiraUrl          *string   `json:"jira_url,omitempty"`
+	ProductBoardID   *string   `json:"product_board_id,omitempty"`
+	BusinessCase     *string   `json:"business_case,omitempty"`
+	Health           string    `json:"health,omitempty"`
+	Tier             string    `json:"tier,omitempty"`
+	Assignee         *string   `json:"assignee"`
+	Components       *[]string `json:"components"`
+	Issuetype        *string   `json:"issuetype"`
+	Labels           *[]string `json:"labels"`
+	Project          *string   `json:"project"`
+	Summary          *string   `json:"summary"`
+}
 
-	userId := c.Keys["user_id"].(int64)
+type JiraPayload struct {
+	Assignee    string   `json:"assignee"`
+	Components  []string `json:"components"`
+	IssueType   string   `json:"issuetype"`
+	Description string   `json:"description"`
+	Labels      []string `json:"labels"`
+	Project     string   `json:"project"`
+	Summary     string   `json:"summary"`
+}
 
-	//Check if the user is Admin and Developer and has permission to create a feature
+type JiraResponseBody struct {
+	ID   string `json:"id"`
+	Key  string `json:"key"`
+	Self string `json:"self"`
+}
 
-	CheckUser, err := models.GetUserByID(models.DB, userId)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
-		return
-	}
-	if CheckUser == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
-	}
+// func CreateFeatures(c *gin.Context) {
 
-	//Only Admin and Developer can create a feature
-	if CheckUser.Role != "ADMIN" && CheckUser.Role != "DEVELOPER" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to create a feature"})
-		return
-	}
+// 	userId := c.Keys["user_id"].(int64)
 
-	//Check the request body
-	body, err := io.ReadAll(c.Request.Body)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+// 	//Check if the user is Admin and Developer and has permission to create a feature
 
-	//unmarshal the body into the FeatureRequest struct
-	var featureRequest Feature
-	if err := json.Unmarshal(body, &featureRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON", "details": err.Error()})
-		return
-	}
+// 	CheckUser, err := models.GetUserByID(models.DB, userId)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+// 		return
+// 	}
+// 	if CheckUser == nil {
+// 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+// 		return
+// 	}
 
-	// Create a new Feature object
-	feature := models.Feature{
-		Title:            featureRequest.Title,
-		Description:      featureRequest.Description,
-		Status:           featureRequest.Status,
-		Health:           featureRequest.Health,
-		StartTime:        featureRequest.StartTime,
-		EndTime:          featureRequest.EndTime,
-		Notes:            &featureRequest.Notes,
-		FeatureDocUrl:    featureRequest.FeatureDocUrl,
-		FigmaUrl:         featureRequest.FigmaUrl,
-		Insights:         featureRequest.Insights,
-		JiraSync:         featureRequest.JiraSync,
-		ProductBoardSync: featureRequest.ProductBoardSync,
-		JiraID:           featureRequest.JiraID,
-		JiraUrl:          featureRequest.JiraUrl,
-		ProductBoardID:   featureRequest.ProductBoardID,
-		BusinessCase:     featureRequest.BusinessCase,
-	}
+// 	//Only Admin and Developer can create a feature
+// 	if CheckUser.Role != "ADMIN" && CheckUser.Role != "DEVELOPER" {
+// 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to create a feature"})
+// 		return
+// 	}
 
-	if err := models.CreateFeature(models.DB, &feature); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
-		return
-	}
+// 	//Check the request body
+// 	body, err := io.ReadAll(c.Request.Body)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	response := response{
+// 	//unmarshal the body into the FeatureRequest struct
+// 	var featureRequest Feature
+// 	if err := json.Unmarshal(body, &featureRequest); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON", "details": err.Error()})
+// 		return
+// 	}
+
+// 	// Create a new Feature object
+// 	feature := models.Feature{
+// 		Title:            featureRequest.Title,
+// 		Description:      featureRequest.Description,
+// 		Status:           featureRequest.Status,
+// 		Health:           featureRequest.Health,
+// 		StartTime:        featureRequest.StartTime,
+// 		EndTime:          featureRequest.EndTime,
+// 		Notes:            &featureRequest.Notes,
+// 		FeatureDocUrl:    featureRequest.FeatureDocUrl,
+// 		FigmaUrl:         featureRequest.FigmaUrl,
+// 		Insights:         featureRequest.Insights,
+// 		JiraSync:         featureRequest.JiraSync,
+// 		ProductBoardSync: featureRequest.ProductBoardSync,
+// 		JiraID:           featureRequest.JiraID,
+// 		JiraUrl:          featureRequest.JiraUrl,
+// 		ProductBoardID:   featureRequest.ProductBoardID,
+// 		BusinessCase:     featureRequest.BusinessCase,
+// 	}
+
+// 	if err := models.CreateFeature(models.DB, &feature); err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+// 		return
+// 	}
+
+// 	response := response{
+// 		ID:               feature.ID,
+// 		Title:            feature.Title,
+// 		Description:      feature.Description,
+// 		Status:           feature.Status,
+// 		Health:           feature.Health,
+// 		StartTime:        feature.StartTime,
+// 		EndTime:          feature.EndTime,
+// 		Notes:            feature.Notes,
+// 		FeatureDocUrl:    feature.FeatureDocUrl,
+// 		FigmaUrl:         feature.FigmaUrl,
+// 		Insights:         feature.Insights,
+// 		JiraSync:         feature.JiraSync,
+// 		ProductBoardSync: feature.ProductBoardSync,
+// 		JiraID:           feature.JiraID,
+// 		JiraUrl:          feature.JiraUrl,
+// 		ProductBoardID:   feature.ProductBoardID,
+// 		BusinessCase:     feature.BusinessCase,
+// 		CreatedAt:        feature.CreatedAt,
+// 		UpdatedAt:        feature.UpdatedAt,
+// 	}
+
+// 	c.JSON(http.StatusCreated, response)
+
+// }
+
+func ptrString(s string) *string {
+	return &s
+}
+
+func ptrBool(b bool) *bool {
+	return &b
+}
+
+func buildFeatureResponse(feature models.Feature) response {
+	return response{
 		ID:               feature.ID,
 		Title:            feature.Title,
 		Description:      feature.Description,
 		Status:           feature.Status,
 		Health:           feature.Health,
+		Tier:             feature.Tier,
 		StartTime:        feature.StartTime,
 		EndTime:          feature.EndTime,
 		Notes:            feature.Notes,
@@ -145,9 +227,115 @@ func CreateFeatures(c *gin.Context) {
 		CreatedAt:        feature.CreatedAt,
 		UpdatedAt:        feature.UpdatedAt,
 	}
+}
 
-	c.JSON(http.StatusCreated, response)
+func CreateFeatures(c *gin.Context) {
+	userID := c.Keys["user_id"].(int64)
 
+	// Fetch and verify user permissions
+	user, err := models.GetUserByID(models.DB, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+	if user == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+	if user.Role != "ADMIN" && user.Role != "DEVELOPER" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to create a feature"})
+		return
+	}
+
+	// Read and parse request body
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var featureRequest FeatureRequestBody
+	if err := json.Unmarshal(body, &featureRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON", "details": err.Error()})
+		return
+	}
+
+	// Create base feature model
+	feature := models.Feature{
+		Title:         featureRequest.Title,
+		Description:   featureRequest.Description,
+		Status:        models.StatusType(featureRequest.Status),
+		Health:        models.FeatureHealth(featureRequest.Health),
+		Tier:          models.FeatureTier(featureRequest.Tier),
+		StartTime:     featureRequest.StartTime,
+		EndTime:       featureRequest.EndTime,
+		Notes:         &featureRequest.Notes,
+		FeatureDocUrl: featureRequest.FeatureDocUrl,
+		FigmaUrl:      featureRequest.FigmaUrl,
+		Insights:      featureRequest.Insights,
+		BusinessCase:  featureRequest.BusinessCase,
+		JiraID:        featureRequest.JiraID,
+		JiraUrl:       featureRequest.JiraUrl,
+	}
+
+	// Create feature in DB
+	if err := models.CreateFeature(models.DB, &feature); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+
+	// If no Jira assignee, return early
+	if featureRequest.Assignee == nil || *featureRequest.Assignee == "" {
+		response := buildFeatureResponse(feature)
+		c.JSON(http.StatusCreated, response)
+		return
+	}
+
+	// Parse Jira payload
+	var jiraIssue JiraPayload
+	if err := json.Unmarshal(body, &jiraIssue); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Jira payload", "details": err.Error()})
+		return
+	}
+
+	// Format and create Jira issue
+	formatJira := service.StructureJiraBody(service.JiraInput{
+		Assignee:    jiraIssue.Assignee,
+		Components:  jiraIssue.Components,
+		IssueType:   jiraIssue.IssueType,
+		Description: jiraIssue.Description,
+		Labels:      jiraIssue.Labels,
+		Project:     jiraIssue.Project,
+		Summary:     feature.Title,
+	})
+
+	jiraResponseStr, err := service.CreateJiraIssue(formatJira)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create Jira issue", "details": err.Error()})
+		return
+	}
+
+	var jiraResponse JiraResponseBody
+	if err := json.Unmarshal([]byte(jiraResponseStr), &jiraResponse); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse Jira response", "details": err.Error()})
+		return
+	}
+
+	// Update feature with Jira data
+	feature.JiraID = &jiraResponse.ID
+	feature.JiraSync = ptrBool(true)
+	feature.JiraUrl = ptrString(fmt.Sprintf(
+		"https://ringover.atlassian.net/jira/software/c/projects/EM/boards/1253?selectedIssue=%s",
+		jiraResponse.Key,
+	))
+
+	if err := models.UpdateFeature(models.DB, &feature); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update feature with Jira info", "details": err.Error()})
+		return
+	}
+
+	fmt.Println("Feature and Jira Issue created successfully")
+	c.JSON(http.StatusOK, "Feature created and Jira Issue updated successfully")
 }
 
 func GetFeatureByID(c *gin.Context) {
@@ -160,7 +348,6 @@ func GetFeatureByID(c *gin.Context) {
 
 	//Check if the Feature exists
 	getFeature, err := models.GetFeatureByID(models.DB, featureID)
-	fmt.Println(getFeature)
 
 	if getFeature == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Feature not found"})
@@ -177,6 +364,7 @@ func GetFeatureByID(c *gin.Context) {
 		Description:      getFeature.Description,
 		Status:           getFeature.Status,
 		Health:           getFeature.Health,
+		Tier:             getFeature.Tier,
 		StartTime:        getFeature.StartTime,
 		EndTime:          getFeature.EndTime,
 		Notes:            getFeature.Notes,
@@ -237,6 +425,7 @@ func UpdateFeatureById(c *gin.Context) {
 		Description      *string               `json:"description"`
 		Status           *models.StatusType    `json:"status" binding:"required"`
 		Health           *models.FeatureHealth `json:"health,omitempty"`
+		Tier             *models.FeatureTier   `json:"tier,omitempty"`
 		StartTime        *int64                `json:"start_time"`
 		EndTime          *int64                `json:"end_time"`
 		Notes            *string               `json:"notes"`
@@ -290,6 +479,9 @@ func UpdateFeatureById(c *gin.Context) {
 	if input.Health != nil {
 		existingFeature.Health = models.FeatureHealth(*input.Health)
 	}
+	if input.Tier != nil {
+		existingFeature.Tier = models.FeatureTier(*input.Tier)
+	}
 	if input.StartTime != nil {
 		startTime := *input.StartTime
 		existingFeature.StartTime = &startTime
@@ -342,6 +534,7 @@ func UpdateFeatureById(c *gin.Context) {
 		Description:      existingFeature.Description,
 		Status:           existingFeature.Status,
 		Health:           existingFeature.Health,
+		Tier:             existingFeature.Tier,
 		StartTime:        existingFeature.StartTime,
 		EndTime:          existingFeature.EndTime,
 		Notes:            existingFeature.Notes,
@@ -379,6 +572,7 @@ func GetAllFeatures(c *gin.Context) {
 			Description:      f.Description,
 			Status:           f.Status,
 			Health:           f.Health,
+			Tier:             f.Tier,
 			StartTime:        f.StartTime,
 			EndTime:          f.EndTime,
 			Notes:            f.Notes,
@@ -434,6 +628,7 @@ func GetAllFeaturesWithAssginness(c *gin.Context) {
 			BusinessCase:     f.BusinessCase,
 			AssignedUsers:    f.AssignedUsers,
 			Health:           f.Health,
+			Tier:             f.Tier,
 			CreatedAt:        f.CreatedAt,
 			UpdatedAt:        f.UpdatedAt,
 		})

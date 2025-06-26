@@ -58,5 +58,13 @@ func RegisterRoutes(router *gin.Engine) {
 		protected.PUT("/jira/:id", controller.UpdateJiraIssue)
 		protected.GET("/jira/:id", controller.GetJiraIssueByID)
 
+		// Release Notes
+		protected.POST("/createReleaseNote", controller.CreateReleaseNote)
+		protected.GET("/getReleaseNote/:id", controller.GetReleaseNoteByID)
+		protected.PUT("/updateReleaseNote/:id", controller.UpdateReleaseNoteByID)
+		protected.DELETE("/deleteReleaseNote/:id", controller.DeleteReleaseNoteByID)
+		protected.GET("/getAllReleaseNotes", controller.GetAllReleaseNotes)
+		protected.POST("/uploadReleaseNoteImage", controller.UploadReleaseNoteImage)
+
 	}
 }

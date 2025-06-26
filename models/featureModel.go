@@ -46,9 +46,10 @@ func (h FeatureHealth) IsValid() bool {
 type FeatureTier string
 
 const (
-	Tier1 FeatureTier = "TIER_1"
-	Tier2 FeatureTier = "TIER_2"
-	Tier3 FeatureTier = "TIER_3"
+	Tier1   FeatureTier = "TIER_1"
+	Tier2   FeatureTier = "TIER_2"
+	Tier3   FeatureTier = "TIER_3"
+	Default FeatureTier = "DEFAULT" // Default tier if none is specified
 )
 
 func (t FeatureTier) IsValid() bool {

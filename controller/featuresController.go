@@ -334,8 +334,39 @@ func CreateFeatures(c *gin.Context) {
 		return
 	}
 
+	//Get the detials of the Feature for response
+
+	featureCheck, err := models.GetFeatureByID(models.DB, feature.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+	featureResponse := &models.Feature{
+		ID:               featureCheck.ID,
+		Title:            featureCheck.Title,
+		Description:      featureCheck.Description,
+		Status:           featureCheck.Status,
+		Health:           featureCheck.Health,
+		Tier:             featureCheck.Tier,
+		StartTime:        featureCheck.StartTime,
+		EndTime:          featureCheck.EndTime,
+		Notes:            featureCheck.Notes,
+		FeatureDocUrl:    featureCheck.FeatureDocUrl,
+		FigmaUrl:         featureCheck.FigmaUrl,
+		Insights:         featureCheck.Insights,
+		JiraSync:         featureCheck.JiraSync,
+		ProductBoardSync: featureCheck.ProductBoardSync,
+		JiraID:           featureCheck.JiraID,
+		JiraUrl:          featureCheck.JiraUrl,
+		ProductBoardID:   featureCheck.ProductBoardID,
+		BusinessCase:     featureCheck.BusinessCase,
+		CreatedAt:        featureCheck.CreatedAt,
+		UpdatedAt:        featureCheck.UpdatedAt,
+	}
+
 	fmt.Println("Feature and Jira Issue created successfully")
-	c.JSON(http.StatusOK, "Feature created and Jira Issue updated successfully")
+
+	c.JSON(http.StatusOK, buildFeatureResponse(*featureResponse))
 }
 
 func GetFeatureByID(c *gin.Context) {

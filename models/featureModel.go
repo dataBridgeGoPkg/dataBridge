@@ -49,6 +49,7 @@ const (
 	Tier1   FeatureTier = "TIER_1"
 	Tier2   FeatureTier = "TIER_2"
 	Tier3   FeatureTier = "TIER_3"
+	Tier4   FeatureTier = "TIER_4"
 	Default FeatureTier = "DEFAULT" // Default tier if none is specified
 )
 

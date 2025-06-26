@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"example.com/Product_RoadMap/models"
 	"example.com/Product_RoadMap/service"
 	"example.com/Product_RoadMap/utils"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/net/html"
 )
 
 type Feature struct {
@@ -229,6 +231,43 @@ func buildFeatureResponse(feature models.Feature) response {
 	}
 }
 
+// htmlToText converts HTML to plain text, handling <br> and block elements with newlines.
+func htmlToText(htmlStr string) string {
+	doc, err := html.Parse(strings.NewReader(htmlStr))
+	if err != nil {
+		return htmlStr // fallback to original if parsing fails
+	}
+	var sb strings.Builder
+	var blockTags = map[string]bool{
+		"p": true, "div": true, "li": true, "section": true, "article": true,
+		"header": true, "footer": true, "h1": true, "h2": true, "h3": true,
+		"h4": true, "h5": true, "h6": true, "table": true, "ul": true, "ol": true,
+	}
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.ElementNode {
+			if n.Data == "br" {
+				sb.WriteString("\n")
+			}
+			if blockTags[n.Data] {
+				sb.WriteString("\n")
+			}
+		}
+		if n.Type == html.TextNode {
+			sb.WriteString(n.Data)
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+		if n.Type == html.ElementNode && blockTags[n.Data] {
+			sb.WriteString("\n")
+		}
+	}
+	f(doc)
+	// Clean up multiple newlines
+	return strings.TrimSpace(strings.ReplaceAll(sb.String(), "\n\n\n", "\n\n"))
+}
+
 func CreateFeatures(c *gin.Context) {
 	userID := c.Keys["user_id"].(int64)
 
@@ -303,7 +342,7 @@ func CreateFeatures(c *gin.Context) {
 		Assignee:    jiraIssue.Assignee,
 		Components:  jiraIssue.Components,
 		IssueType:   jiraIssue.IssueType,
-		Description: jiraIssue.Description,
+		Description: htmlToText(jiraIssue.Description),
 		Labels:      jiraIssue.Labels,
 		Project:     jiraIssue.Project,
 		Summary:     feature.Title,

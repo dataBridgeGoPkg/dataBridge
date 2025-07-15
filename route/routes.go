@@ -13,7 +13,7 @@ func RegisterRoutes(router *gin.Engine) {
 	// Public routes
 	router.POST("/register", controller.RegisterUser)
 	router.POST("/login", controller.LoginUser)
-	
+
 	// Protected routes
 	protected := router.Group("/")
 	protected.Use(middleware.AuthMiddleware())
@@ -39,6 +39,7 @@ func RegisterRoutes(router *gin.Engine) {
 		protected.GET("/getAllFeatures", controller.GetAllFeatures)
 
 		protected.GET("/getAllfeaturesWithName", controller.GetAllFeaturesWithAssginness) //
+		protected.GET("/getAllFeaturesByProduct/:productID", controller.GetAllFeaturesAssociatedWithProductID)
 		//Feature Assignees
 		protected.POST("/createFeatureAssignees", controller.CreateFeatureAssignee)
 		protected.POST("/AddAssigneeToFeature", controller.AddUserToAFeature)

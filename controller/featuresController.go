@@ -895,3 +895,36 @@ func derefInt64(ptr *int64) int64 {
 	}
 	return 0
 }
+
+// getAllFeaturesAssociatedWithProductID returns all features and their assignees for a given productID (from query param)
+func GetAllFeaturesAssociatedWithProductID(c *gin.Context) {
+	productIDStr := c.Param("productID")
+	if productIDStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing productID path parameter"})
+		return
+	}
+	productID := utils.ParseID(productIDStr)
+	if productID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid productID"})
+		return
+	}
+
+	//Check if product exists
+	product, err := models.GetProductByID(models.DB, productID)
+	if product == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+
+	features, err := models.GetFeaturesWithAssigneesByProductID(models.DB, productID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, features)
+}

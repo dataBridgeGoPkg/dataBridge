@@ -33,6 +33,7 @@ type Feature struct {
 	JiraUrl          *string              `json:"jira_url,omitempty"`
 	ProductBoardID   *string              `json:"product_board_id,omitempty"`
 	BusinessCase     *string              `json:"business_case,omitempty"`
+	ProductID        int64                `json:"product_id"`
 }
 
 type response struct {
@@ -54,6 +55,7 @@ type response struct {
 	JiraUrl          *string              `json:"jira_url,omitempty"`
 	ProductBoardID   *string              `json:"product_board_id,omitempty"`
 	BusinessCase     *string              `json:"business_case,omitempty"`
+	ProductID        int64                `json:"product_id"`
 	CreatedAt        int64                `json:"created_at"`
 	UpdatedAt        int64                `json:"updated_at"`
 }
@@ -87,6 +89,7 @@ type FeatureRequestBody struct {
 	BusinessCase     *string   `json:"business_case,omitempty"`
 	Health           string    `json:"health,omitempty"`
 	Tier             string    `json:"tier,omitempty"`
+	ProductID        int64     `json:"product_id" binding:"required"`
 	Assignee         *string   `json:"assignee"`
 	Components       *[]string `json:"components"`
 	Issuetype        *string   `json:"issuetype"`
@@ -226,6 +229,7 @@ func buildFeatureResponse(feature models.Feature) response {
 		JiraUrl:          feature.JiraUrl,
 		ProductBoardID:   feature.ProductBoardID,
 		BusinessCase:     feature.BusinessCase,
+		ProductID:        derefInt64(feature.ProductID),
 		CreatedAt:        feature.CreatedAt,
 		UpdatedAt:        feature.UpdatedAt,
 	}
@@ -315,6 +319,7 @@ func CreateFeatures(c *gin.Context) {
 		BusinessCase:  featureRequest.BusinessCase,
 		JiraID:        featureRequest.JiraID,
 		JiraUrl:       featureRequest.JiraUrl,
+		ProductID:     &featureRequest.ProductID,
 	}
 
 	// Create feature in DB
@@ -399,6 +404,7 @@ func CreateFeatures(c *gin.Context) {
 		JiraUrl:          featureCheck.JiraUrl,
 		ProductBoardID:   featureCheck.ProductBoardID,
 		BusinessCase:     featureCheck.BusinessCase,
+		ProductID:        featureCheck.ProductID,
 		CreatedAt:        featureCheck.CreatedAt,
 		UpdatedAt:        featureCheck.UpdatedAt,
 	}
@@ -447,6 +453,7 @@ func GetFeatureByID(c *gin.Context) {
 		JiraUrl:          getFeature.JiraUrl,
 		ProductBoardID:   getFeature.ProductBoardID,
 		BusinessCase:     getFeature.BusinessCase,
+		ProductID:        derefInt64(getFeature.ProductID),
 		CreatedAt:        getFeature.CreatedAt,
 		UpdatedAt:        getFeature.UpdatedAt,
 	}
@@ -599,7 +606,8 @@ func UpdateFeatureById(c *gin.Context) {
 
 	// Response
 	updateResponse := response{
-		ID:               existingFeature.ID,
+		ID: existingFeature.ID,
+		//ProductID:        existingFeature.ProductID,
 		Title:            existingFeature.Title,
 		Description:      existingFeature.Description,
 		Status:           existingFeature.Status,
@@ -637,7 +645,8 @@ func GetAllFeatures(c *gin.Context) {
 	var responses []response
 	for _, f := range features {
 		responses = append(responses, response{
-			ID:               f.ID,
+			ID: f.ID,
+			//ProductID:        f.ProductID,
 			Title:            f.Title,
 			Description:      f.Description,
 			Status:           f.Status,
@@ -655,6 +664,7 @@ func GetAllFeatures(c *gin.Context) {
 			JiraUrl:          f.JiraUrl,
 			ProductBoardID:   f.ProductBoardID,
 			BusinessCase:     f.BusinessCase,
+			ProductID:        derefInt64(f.ProductID),
 			CreatedAt:        f.CreatedAt,
 			UpdatedAt:        f.UpdatedAt,
 		})
@@ -699,8 +709,9 @@ func GetAllFeaturesWithAssginness(c *gin.Context) {
 			AssignedUsers:    f.AssignedUsers,
 			Health:           f.Health,
 			Tier:             f.Tier,
-			CreatedAt:        f.CreatedAt,
-			UpdatedAt:        f.UpdatedAt,
+			//ProductID:        f.ProductID,
+			CreatedAt: f.CreatedAt,
+			UpdatedAt: f.UpdatedAt,
 		})
 	}
 	c.JSON(http.StatusOK, responses)
@@ -875,4 +886,12 @@ func DeleteAssigneeFromAFeature(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Feature assignee deleted successfully"})
+}
+
+// Helper to dereference *int64 to int64 (0 if nil)
+func derefInt64(ptr *int64) int64 {
+	if ptr != nil {
+		return *ptr
+	}
+	return 0
 }

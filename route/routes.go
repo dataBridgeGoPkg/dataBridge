@@ -13,11 +13,17 @@ func RegisterRoutes(router *gin.Engine) {
 	// Public routes
 	router.POST("/register", controller.RegisterUser)
 	router.POST("/login", controller.LoginUser)
-
+	
 	// Protected routes
 	protected := router.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 	{
+
+		//Products
+		protected.POST("/products", controller.CreateProduct)
+		protected.GET("/products", controller.GetAllProducts)
+		protected.GET("/products/:id", controller.GetProductByID)
+
 		//Users
 		protected.POST("/createUser", controller.CreateUsers)
 		protected.GET("/getUser/:id", controller.GetUsersByID)

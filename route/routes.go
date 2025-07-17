@@ -23,6 +23,7 @@ func RegisterRoutes(router *gin.Engine) {
 		protected.POST("/products", controller.CreateProduct)
 		protected.GET("/products", controller.GetAllProducts)
 		protected.GET("/products/:id", controller.GetProductByID)
+		protected.GET("/getAllDetailsAssociatedWithProduct/:product_id", controller.GetAllDetailsAssociatedWithProductID)
 
 		//Users
 		protected.POST("/createUser", controller.CreateUsers)

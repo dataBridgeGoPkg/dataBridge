@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"example.com/Product_RoadMap/models"
@@ -57,4 +58,35 @@ func GetProductByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, product)
+}
+
+func GetAllDetailsAssociatedWithProductID(c *gin.Context) {
+
+	productID := utils.ParseID(c.Param("product_id"))
+
+	fmt.Println("productID", productID)
+
+	if productID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		return
+	}
+
+	product, err := models.GetProductByID(models.DB, productID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+
+	if product == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+		return
+	}
+
+	productDetails, err := models.GetAllDetailsAssociatedWithProduct(models.DB, productID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, productDetails)
 }

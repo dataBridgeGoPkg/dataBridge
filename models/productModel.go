@@ -215,3 +215,56 @@ func GetFeaturesWithAssigneesByProductID(db *sql.DB, productID int64) ([]*Featur
 
 	return result, nil
 }
+
+type ProductDetailsAggregate struct {
+	Features        []*FeatureWithAssignedUsers `json:"features"`
+	Documents       []*Document                 `json:"documents"`
+	FeatureRequests []*FeatureRequestModel      `json:"feature_requests"`
+}
+
+func GetAllDetailsAssociatedWithProduct(db *sql.DB, productID int64) (*ProductDetailsAggregate, error) {
+	features, err := GetFeaturesWithAssigneesByProductID(db, productID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get documents for this product
+	docsQuery := `SELECT id, name, description, url, product_id, created_at, updated_at FROM documents WHERE product_id = ?`
+	docRows, err := db.Query(docsQuery, productID)
+	if err != nil {
+		return nil, err
+	}
+	defer docRows.Close()
+	var documents []*Document
+	for docRows.Next() {
+		doc := &Document{}
+		err := docRows.Scan(&doc.ID, &doc.Name, &doc.Description, &doc.URL, &doc.ProductID, &doc.CreatedAt, &doc.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		documents = append(documents, doc)
+	}
+
+	// Get feature requests for this product
+	frQuery := `SELECT id, title, description, accepted, requested_by, product_id, created_at, updated_at FROM feature_requests WHERE product_id = ?`
+	frRows, err := db.Query(frQuery, productID)
+	if err != nil {
+		return nil, err
+	}
+	defer frRows.Close()
+	var featureRequests []*FeatureRequestModel
+	for frRows.Next() {
+		fr := &FeatureRequestModel{}
+		err := frRows.Scan(&fr.ID, &fr.Title, &fr.Description, &fr.Accepted, &fr.RequestedBy, &fr.ProductID, &fr.CreatedAt, &fr.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		featureRequests = append(featureRequests, fr)
+	}
+
+	return &ProductDetailsAggregate{
+		Features:        features,
+		Documents:       documents,
+		FeatureRequests: featureRequests,
+	}, nil
+}

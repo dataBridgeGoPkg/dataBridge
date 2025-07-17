@@ -12,8 +12,9 @@ type FeatureRequestModel struct {
 	Description string  `json:"description,omitempty"`
 	Accepted    *bool   `json:"accepted,omitempty"`
 	RequestedBy *string `json:"requested_by,omitempty"` // Optional field for the user who requested the feature
-	CreatedAt   int64   `json:"created_at,omitempty"`   // Unix timestamp
-	UpdatedAt   int64   `json:"updated_at,omitempty"`   // Unix timestamp
+	ProductID   int64   `json:"product_id"`
+	CreatedAt   int64   `json:"created_at,omitempty"` // Unix timestamp
+	UpdatedAt   int64   `json:"updated_at,omitempty"` // Unix timestamp
 }
 
 // CreateFeatureRequestTable creates the feature_requests table if it doesn't exist
@@ -25,6 +26,7 @@ func CreateFeatureRequestTable(db *sql.DB) error {
 		description TEXT NOT NULL,
 		accepted BOOLEAN DEFAULT NULL,
 		requested_by VARCHAR(255),
+		product_id BIGINT NOT NULL,
 		created_at BIGINT NOT NULL,
 		updated_at BIGINT NOT NULL
 	)`
@@ -39,14 +41,15 @@ func CreateFeatureRequest(db *sql.DB, fr *FeatureRequestModel) error {
 	fr.UpdatedAt = now
 
 	query := `
-	INSERT INTO feature_requests (title, description, accepted, requested_by, created_at, updated_at)
-	VALUES (?, ?, ?, ?, ?, ?)`
+	INSERT INTO feature_requests (title, description, accepted, requested_by, product_id, created_at, updated_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := db.Exec(query,
 		fr.Title,
 		fr.Description,
 		fr.Accepted,
 		fr.RequestedBy,
+		fr.ProductID,
 		fr.CreatedAt,
 		fr.UpdatedAt,
 	)
@@ -61,7 +64,7 @@ func CreateFeatureRequest(db *sql.DB, fr *FeatureRequestModel) error {
 // FetchFeatureRequestByID retrieves a feature request by its ID
 func FetchFeatureRequestByID(db *sql.DB, id int64) (*FeatureRequestModel, error) {
 	query := `
-	SELECT id, title, description, accepted, requested_by, created_at, updated_at
+	SELECT id, title, description, accepted, requested_by, product_id, created_at, updated_at
 	FROM feature_requests
 	WHERE id = ?`
 
@@ -72,6 +75,7 @@ func FetchFeatureRequestByID(db *sql.DB, id int64) (*FeatureRequestModel, error)
 		&featureRequest.Description,
 		&featureRequest.Accepted,
 		&featureRequest.RequestedBy,
+		&featureRequest.ProductID,
 		&featureRequest.CreatedAt,
 		&featureRequest.UpdatedAt,
 	)
@@ -89,7 +93,7 @@ func FetchFeatureRequestByID(db *sql.DB, id int64) (*FeatureRequestModel, error)
 // FetchAllFeatureRequests retrieves all feature requests
 func FetchAllFeatureRequests(db *sql.DB) ([]*FeatureRequestModel, error) {
 	query := `
-	SELECT id, title, description, accepted, requested_by, created_at, updated_at
+	SELECT id, title, description, accepted, requested_by, product_id, created_at, updated_at
 	FROM feature_requests
 	ORDER BY created_at DESC`
 
@@ -108,6 +112,7 @@ func FetchAllFeatureRequests(db *sql.DB) ([]*FeatureRequestModel, error) {
 			&fr.Description,
 			&fr.Accepted,
 			&fr.RequestedBy,
+			&fr.ProductID,
 			&fr.CreatedAt,
 			&fr.UpdatedAt,
 		)
@@ -126,7 +131,7 @@ func UpdateFeatureRequestByID(db *sql.DB, fr *FeatureRequestModel) error {
 
 	query := `
 	UPDATE feature_requests
-	SET title = ?, description = ?, accepted = ?, requested_by = ?, updated_at = ?
+	SET title = ?, description = ?, accepted = ?, requested_by = ?, product_id = ?, updated_at = ?
 	WHERE id = ?`
 
 	_, err := db.Exec(query,
@@ -134,6 +139,7 @@ func UpdateFeatureRequestByID(db *sql.DB, fr *FeatureRequestModel) error {
 		fr.Description,
 		fr.Accepted,
 		fr.RequestedBy,
+		fr.ProductID,
 		fr.UpdatedAt,
 		fr.ID,
 	)

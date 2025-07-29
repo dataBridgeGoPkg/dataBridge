@@ -16,18 +16,20 @@ type FeatureRequest struct {
 	Description string `json:"description" binding:"required"`
 	Accepted    *bool  `json:"accepted,omitempty"`
 	RequestedBy string `json:"requested_by,omitempty"`
+	ProductID   int64  `json:"product_id"`
 	CreatedAt   int64  `json:"created_at,omitempty"` // Unix timestamp
 	UpdatedAt   int64  `json:"updated_at,omitempty"` // Unix timestamp
 }
 
 type FeatureRequestResponse struct {
-	ID          int64   `json:"id"`
+	ID          int64   `json:"id,omitempty"`
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
+	ProductID   int64   `json:"product_id"`
 	Accepted    *bool   `json:"accepted,omitempty"`
 	RequestedBy *string `json:"requested_by,omitempty"`
-	CreatedAt   int64   `json:"created_at"`
-	UpdatedAt   int64   `json:"updated_at"`
+	CreatedAt   int64   `json:"created_at,omitempty"`
+	UpdatedAt   int64   `json:"updated_at,omitempty"`
 }
 
 type UpdateFeatureRequestInput struct {
@@ -56,11 +58,25 @@ func CreateFeatureRequest(c *gin.Context) {
 		return
 	}
 
+	productID := featureRequest.ProductID
+
+	//Check product ID is valid
+	product, err := models.GetProductByID(models.DB, productID)
+	if product == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error", "details": err.Error()})
+		return
+	}
+
 	featureRequestModel := models.FeatureRequestModel{
 		Title:       featureRequest.Title,
 		Description: featureRequest.Description,
 		Accepted:    featureRequest.Accepted,
 		RequestedBy: &featureRequest.RequestedBy,
+		ProductID:   productID,
 	}
 
 	if featureRequest.Accepted != nil {
@@ -80,6 +96,7 @@ func CreateFeatureRequest(c *gin.Context) {
 		RequestedBy: featureRequestModel.RequestedBy,
 		CreatedAt:   featureRequestModel.CreatedAt,
 		UpdatedAt:   featureRequestModel.UpdatedAt,
+		ProductID:   productID,
 	}
 
 	c.JSON(http.StatusCreated, response)
@@ -108,6 +125,7 @@ func GetFeatureRequestByID(c *gin.Context) {
 		RequestedBy: getFeatureRequest.RequestedBy,
 		CreatedAt:   getFeatureRequest.CreatedAt,
 		UpdatedAt:   getFeatureRequest.UpdatedAt,
+		ProductID:   getFeatureRequest.ProductID,
 	}
 	c.JSON(http.StatusOK, response)
 }
@@ -170,6 +188,7 @@ func UpdateFeatureRequestByID(c *gin.Context) {
 		RequestedBy: existingFeatureRequest.RequestedBy,
 		CreatedAt:   existingFeatureRequest.CreatedAt,
 		UpdatedAt:   existingFeatureRequest.UpdatedAt,
+		ProductID:   existingFeatureRequest.ProductID,
 	}
 	c.JSON(http.StatusOK, response)
 }
@@ -204,17 +223,21 @@ func GetAllFeatureRequests(c *gin.Context) {
 		return
 	}
 
+	productID := utils.ParseID(c.Param("product_id"))
 	var responses []FeatureRequestResponse
 	for _, f := range features {
-		responses = append(responses, FeatureRequestResponse{
-			ID:          f.ID,
-			Title:       f.Title,
-			Description: f.Description,
-			Accepted:    f.Accepted,
-			RequestedBy: f.RequestedBy,
-			CreatedAt:   f.CreatedAt,
-			UpdatedAt:   f.UpdatedAt,
-		})
+		if productID == 0 || f.ProductID == productID {
+			responses = append(responses, FeatureRequestResponse{
+				ID:          f.ID,
+				Title:       f.Title,
+				Description: f.Description,
+				Accepted:    f.Accepted,
+				RequestedBy: f.RequestedBy,
+				CreatedAt:   f.CreatedAt,
+				UpdatedAt:   f.UpdatedAt,
+				ProductID:   f.ProductID,
+			})
+		}
 	}
 
 	c.JSON(http.StatusOK, responses)

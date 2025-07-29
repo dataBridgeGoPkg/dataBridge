@@ -15,6 +15,7 @@ type documentResponse struct {
 	Name        string  `json:"name"`
 	Description *string `json:"description,omitempty"`
 	URL         string  `json:"url"`
+	ProductID   int64   `json:"product_id"`
 	CreatedAt   int64   `json:"created_at,omitempty"`
 	UpdatedAt   int64   `json:"updated_at,omitempty"`
 }
@@ -39,6 +40,7 @@ func CreateDocument(c *gin.Context) {
 		Name:        doc.Name,
 		Description: doc.Description,
 		URL:         doc.URL,
+		ProductID:   doc.ProductID,
 		CreatedAt:   doc.CreatedAt,
 		UpdatedAt:   doc.UpdatedAt,
 	}
@@ -91,6 +93,7 @@ func UpdateDocumentById(c *gin.Context) {
 		Name        *string `json:"name"`
 		Description *string `json:"description"`
 		URL         *string `json:"url"`
+		ProductID   *int64  `json:"product_id"`
 	}
 
 	// Parse and validate document ID
@@ -128,6 +131,9 @@ func UpdateDocumentById(c *gin.Context) {
 	}
 	if input.URL != nil {
 		existingDocument.URL = *input.URL
+	}
+	if input.ProductID != nil {
+		existingDocument.ProductID = *input.ProductID
 	}
 
 	// Save updated document

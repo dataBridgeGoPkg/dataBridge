@@ -39,6 +39,14 @@ func RegisterRoutes(router *gin.Engine) {
 		protected.PUT("/updateFeature/:id", controller.UpdateFeatureById)
 		protected.GET("/getAllFeatures", controller.GetAllFeatures)
 
+		//Feature Release Checklist
+		protected.POST("/createFeatureReleaseChecklist", controller.CreateFeatureReleaseChecklist)
+		protected.GET("/getFeatureChecklistByID/:id", controller.GetFeatureReleaseChecklistByCheckListID)
+		protected.PUT("/updateFeatureReleaseChecklist/:id", controller.UpdateFeatureReleaseChecklistByID)
+		protected.DELETE("/deleteFeatureReleaseChecklist/:id", controller.DeleteFeatureReleaseChecklistByID)
+		protected.GET("/getFeatureReleaseChecklist/:feature_id", controller.GetFeatureReleaseChecklistByFeatureID)
+		protected.POST("/createDefaultCheckList/:feature_id", controller.CreateDefaultFeatureCheckList)
+
 		protected.GET("/getAllfeaturesWithName", controller.GetAllFeaturesWithAssginness) //
 		protected.GET("/getAllFeaturesByProduct/:productID", controller.GetAllFeaturesAssociatedWithProductID)
 		//Feature Assignees

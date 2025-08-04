@@ -14,6 +14,9 @@ func RegisterRoutes(router *gin.Engine) {
 	router.POST("/register", controller.RegisterUser)
 	router.POST("/login", controller.LoginUser)
 
+	//TEST
+	//router.POST("/empower/webhook", controller.HandleWebhook)
+
 	// Protected routes
 	protected := router.Group("/")
 	protected.Use(middleware.AuthMiddleware())

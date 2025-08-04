@@ -186,7 +186,7 @@ func GetFeatureReleaseChecklistByFeatureID(c *gin.Context) {
 		return
 	}
 	if len(checklistItems) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"message": "No checklist items found for this feature"})
+		c.JSON(http.StatusOK, gin.H{"message": "No checklist items found for this feature"})
 		return
 	}
 

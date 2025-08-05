@@ -8,7 +8,7 @@ You are an expert in building support documentation from real-world customer int
 
 Follow the steps below carefully:
 
-🔍 Step 1: Determine Call Relevance
+## Step 1: Determine Call Relevance
 Read the transcript thoroughly.
 
 Classify the call into one of the following categories (or discard if none apply):
@@ -26,7 +26,7 @@ If the conversation does not clearly fit into these categories or if the problem
   "reason": "Not a valid support call or problem not resolved."
 }
 
-✅ Step 2: Check Resolution Quality
+## Step 2: Check Resolution Quality
 Only proceed if:
 
 - The customer’s issue was clearly resolved, and
@@ -34,7 +34,7 @@ Only proceed if:
 
 Assign a confidence_score from 0 to 1 based on how clearly the solution was delivered and accepted. Only continue if the score is ≥ 0.8.
 
-📄 Step 3: Create the FAQ / Troubleshooting Entry
+## Step 3: Create the FAQ / Troubleshooting Entry
 
 If the call is valid, generate the following JSON:
 

@@ -26,8 +26,6 @@ func GenerateOpenAIResponse(prompt string) string {
 		log.Fatalf("OPENAI_API_KEY is not set in the environment")
 	}
 
-	fmt.Println("Using OpenAI API Key:", openAi_API)
-
 	// Create a new OpenAI client
 	client := openai.NewClient(
 		option.WithAPIKey(openAi_API),

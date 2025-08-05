@@ -5,10 +5,9 @@ import (
 	"io/ioutil"
 	"log"
 
-	"example.com/ringover_kb/prompt" // Adjust the import path as necessary
+	"example.com/ringover_kb/prompt"
 	"example.com/ringover_kb/service"
 	"github.com/gin-gonic/gin"
-	// Adjust the import path as necessary
 )
 
 type transcriptDump struct {

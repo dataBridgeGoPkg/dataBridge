@@ -1,0 +1,100 @@
+[
+  {
+    "question": "Why is there no sound during calls on Ringover, and how can I fix it?",
+    "answer": "If you experience a lack of sound during calls on Ringover, it could be due to the sound output device settings on your computer. Follow these steps to resolve the problem: 1. Ensure your headphones or speakers are connected properly. 2. Check the output device settings: Go to the sound settings on your computer and ensure the correct output device is selected (e.g., Jabra headphones). 3. Test the sound by playing a video on YouTube or any other media player to ensure sound is output correctly through the selected device. 4. If sound works correctly outside of Ringover, return to Ringover and perform the speaker test again. Adjust the volume if necessary.",
+    "category": "troubleshooting_question",
+    "tags": [
+      "sound",
+      "audio",
+      "Ringover",
+      "output device",
+      "settings"
+    ],
+    "confidence_score": 0.92,
+    "user_id": 35989
+
+  },
+  {
+    "question": "Why is there no sound playing from videos on my computer?",
+    "answer": "Ensure that the correct audio output device is selected in your system settings. Open audio settings, and under 'Output Device', select the appropriate device, such as 'Jabra'. Then, try playing a video again to see if the sound issues are resolved.",
+    "category": "troubleshooting_question",
+    "tags": [
+      "audio",
+      "sound issue",
+      "output device",
+      "video",
+      "computer settings"
+    ],
+    "confidence_score": 0.9,
+    "user_id": 35989
+  },
+  {
+    "question": "Why is there no sound from my Ringover application even when my headset is correctly connected?",
+    "answer": "Ensure that your headset is properly connected and that no other Bluetooth devices are causing interference. If the headset appears to be connected but no sound is produced, a simple computer restart may resolve the issue. This can help reset audio configurations and establish a proper connection.",
+    "category": "troubleshooting_question",
+    "tags": [
+      "headset",
+      "sound issue",
+      "Ringover",
+      "Bluetooth",
+      "audio settings"
+    ],
+    "confidence_score": 0.9,
+    "user_id": 35989
+  },
+  {
+    "question": "Comment activer les autorisations de microphone et de notifications sur la web app Ringover ?",
+    "answer": "Si le microphone ou les notifications ne fonctionnent pas sur la web app, cela pourrait être dû à des autorisations bloquées dans votre navigateur. Cliquez sur le petit cadenas à gauche de l'URL dans la barre d'adresse de votre navigateur. Dans les paramètres du site, assurez-vous que les options pour le microphone et les notifications sont réglées sur 'Autoriser'. Vous devrez peut-être rafraîchir la page après avoir effectué ces changements pour qu'ils soient pris en compte.",
+    "category": "troubleshooting_question",
+    "tags": [
+      "microphone",
+      "notifications",
+      "web app",
+      "autorisations",
+      "navigateur"
+    ],
+    "confidence_score": 0.92,
+    "user_id": 35989
+  },
+  {
+    "question": "How can I set Ringover to connect the caller with the last agent they spoke to based on call history?",
+    "answer": "To configure Ringover to connect the caller with the last agent they spoke to, navigate to the call routing settings. You can select the option to use the Machine Learning feature, which bases its routing decision on historical call data. Select the option to route to 'the last person who was in contact with the caller.' Make sure to set the historical period (e.g., one week, one month) according to your preference. If needed, consult with your IT team to ensure CRM integration is active as the system can also route calls to the contact owner in your CRM.",
+    "category": "product_question",
+    "tags": [
+      "call routing",
+      "Ringover",
+      "machine learning",
+      "CRM",
+      "call history"
+    ],
+    "confidence_score": 0.9,
+    "user_id": 35989
+  },
+  {
+    "question": "Comment puis-je calculer le taux de réponse pour les appels sortants dans Ringover ?",
+    "answer": "Actuellement, Ringover ne fournit pas directement le taux de réponse pour les appels sortants. Cependant, vous pouvez utiliser plusieurs indicateurs pour vous en approcher: \n1. Filtrez les appels avec un message sur répondeur et ceux décroché par un automate. \n2. Excluez les appels de moins de 45 secondes, car souvent une sonnerie dure environ 20 secondes. Ainsi, un appel de plus de 30 secondes a probablement été décroché par une personne. \n3. Ajoutez des critères supplémentaires si nécessaire pour votre analyse.",
+    "category": "troubleshooting_question",
+    "tags": [
+      "taux de réponse",
+      "appels sortants",
+      "filtre",
+      "répondeur",
+      "automate"
+    ],
+    "confidence_score": 0.9,
+    "user_id": 35989
+  },
+  {
+    "question": "How do I change the ring time duration before a call is forwarded on Ringover?",
+    "answer": "To change the ring time duration before a call is forwarded on Ringover, access the settings and adjust the ring time from its default of 10 seconds to your desired duration, such as 20 seconds. This adjustment ensures you have enough time to answer the call before it forwards or stops ringing.",
+    "category": "troubleshooting_question",
+    "tags": [
+      "ring time",
+      "call forwarding",
+      "settings",
+      "duration"
+    ],
+    "confidence_score": 0.9,
+    "user_id": 35989
+  }
+]

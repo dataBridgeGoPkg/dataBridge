@@ -9,9 +9,9 @@ import (
 	"os/signal"
 	"time"
 
-	"example.com/Product_RoadMap/middleware"
-	"example.com/Product_RoadMap/models"
-	route "example.com/Product_RoadMap/route"
+	"example.com/ringover_kb/middleware"
+	"example.com/ringover_kb/models"
+	route "example.com/ringover_kb/route"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"

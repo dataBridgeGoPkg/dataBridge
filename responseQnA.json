@@ -1,0 +1,1064 @@
+[
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "How do I enable notifications for Ringover on Windows?",
+        "answer": "If you're not receiving notifications for Ringover, the issue may be related to Windows settings and not the application itself. To enable notifications, go to the Windows search bar and type 'Notifications & actions'. Under the 'Notifications & actions' settings, find Ringover in the list of applications. Ensure that notifications are enabled for Ringover and set to high priority. If adjustments are needed, refresh your Ringover page, especially if you're using it in a web browser, by clicking the padlock icon next to the URL and ensuring notifications are allowed there too.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "notifications",
+            "Windows",
+            "Ringover",
+            "settings",
+            "web browser"
+        ],
+        "confidence_score": 0.91
+    },
+    {
+        "question": "Why am I not receiving password reset emails from Ringover, and how can I fix this?",
+        "answer": "If you are not receiving password reset emails, first verify that the email address associated with your account is correct. If it's correct and you still don't receive the email, check the spam or junk folder in your email. Additionally, try sending the password reset request again. In the Ringover web interface, go to the URL bar, click on the lock icon, and ensure that notifications are allowed for this site.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "password reset",
+            "email issue",
+            "Ringover",
+            "notifications"
+        ],
+        "confidence_score": 0.85
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "Why is there no sound coming from my headphones when using Ringover, even though audio works elsewhere?",
+        "answer": "If you're experiencing issues with sound not coming from your headphones when using Ringover, first check if the headphones are properly connected and recognized by the device. In this case, the issue was resolved by disconnecting and then reconnecting the headset. Additionally, restarting the computer can often fix the issue. Ensure Bluetooth connections are properly configured if the headset uses Bluetooth. Verify that the sound settings on your operating system are correctly set to use the headphones.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "sound",
+            "headphones",
+            "Ringover",
+            "Bluetooth",
+            "troubleshooting"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "Comment configurer le routage des appels en fonction de l'historique des appels précédents sur Ringover?",
+        "answer": "Pour configurer le routage des appels en fonction de l'historique des appels, vous devez accéder aux paramètres de votre standard téléphonique sur Ringover. Sélectionnez l'option de routage qui utilise le machine learning pour analyser l'historique des appels. Cela permet de diriger l'appel vers la dernière personne mise en relation avec l'appelant, même si l'appel précédent a terminé sur une messagerie vocale ou n'a pas été décroché. Vous pouvez ajuster la période d'historique à considérer, comme un jour, une semaine, ou un mois.",
+        "category": "product_question",
+        "tags": [
+            "routage des appels",
+            "historique des appels",
+            "Ringover",
+            "machine learning",
+            "standard téléphonique"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "How do I configure HubSpot contact synchronization in Ringover to prevent unknown numbers on incoming calls?",
+        "answer": "To configure HubSpot contact synchronization in Ringover and ensure you do not receive 'unknown number' notifications for incoming calls, navigate to the integration dashboard on your Ringover account. You will see three synchronization options:\n1. **Synchronize All Contacts**: When enabled, all HubSpot contacts are synchronized with Ringover, displaying the contact's name on incoming calls.\n2. **Synchronize Contacts on Usage**: This option updates the contact list when a new call is made or received. If the contact isn't recognized on the first call, the details appear after the call and will be available for future interactions.\n3. **Ephemeral Call Information**: This option displays contact details during the call, but the information is erased once the call ends.\nFor complete contact synchronization, ensure the first option is enabled.",
+        "category": "product_question",
+        "tags": [
+            "HubSpot",
+            "contact synchronization",
+            "Ringover",
+            "incoming calls",
+            "unknown numbers"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "Comment puis-je voir les appels manqués avec une cloche sur le dashboard Ringover ?",
+        "answer": "Si vous ne voyez pas les cloches d'indication pour les appels manqués sur votre dashboard Ringover, assurez-vous que vous êtes bien dans la section 'Logs'. Ensuite, modifiez les filtres pour afficher 'Tous' ou 'Non traités' au lieu de 'Traités'. Cela vous permettra de voir tous les appels manqués, y compris ceux avec une cloche d'indication.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "dashboard",
+            "appels manqués",
+            "filtres",
+            "cloche",
+            "ringover"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "Comment réattribuer une licence utilisateur supprimée accidentellement sur Ringover ?",
+        "answer": "Pour réattribuer une licence utilisateur supprimée accidentellement sur Ringover, accédez au tableau de bord et cliquez sur 'Configuration' à gauche sous 'Utilisateur'. Supprimez l'utilisateur non désiré pour libérer une licence. Ensuite, cliquez sur 'Ajouter un utilisateur', entrez l'adresse e-mail de l'utilisateur à réattribuer et sélectionnez le numéro de téléphone disponible. Enfin, assigner à cet utilisateur la licence disponible.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "licence",
+            "tableau de bord",
+            "configuration",
+            "utilisateur",
+            "licence utilisateur"
+        ],
+        "confidence_score": 0.91
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "Pourquoi les téléphones continuent-ils à sonner même après qu'un appel a été décroché dans l'application Ringover ?",
+        "answer": "Ce problème peut être dû à l'utilisation d'une version obsolète de l'application mobile Ringover. Pour le résoudre, assurez-vous que vos utilisateurs installent la version la plus récente de l'application sur leurs appareils Android. Vérifiez également qu'ils installent la version correcte, reconnaissable par son icône bleue marine avec un logo vert. Si les utilisateurs ont plus d'une version de l'application, demandez-leur de désinstaller les versions incorrectes.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "sonnerie",
+            "application mobile",
+            "mise à jour",
+            "version application",
+            "Android"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "Why am I not receiving incoming calls on my Ringover account?",
+        "answer": "If you're not receiving calls, it's possible that your number isn't included in the correct call group scenario. You should check with your account administrator to ensure that your number is added to the appropriate call scenario in the Ringover dashboard. This configuration determines the sequence and availability for call routing. The administrator can modify or update your presence in the scenario as necessary.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "call routing",
+            "call group",
+            "administrator",
+            "Ringover",
+            "dashboard"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "Why did my call forwarding setup not work as expected?",
+        "answer": "The issue was due to the configuration that required external calls to be accepted with a keypress. When using the 'external number' option, ensure that the recipient is informed they need to press a key to accept the call. Alternatively, use the 'external call center' option if you prefer calls to be accepted automatically without requiring any keypress, but note that this option only allows for a single number to be configured at a time.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "call forwarding",
+            "external number",
+            "key press",
+            "configuration"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "How can I configure call forwarding to an external number without needing the recipient to press a button?",
+        "answer": "To configure call forwarding without needing the recipient to press a button, use the 'Call Center External' option. This setting allows you to forward the call directly to an external number without any prompts for the recipient. Note that you can only set one number at a time with this option. To implement this, navigate to your call forwarding settings, select 'Call Center External', and enter the intended external number.",
+        "category": "product_question",
+        "tags": [
+            "call forwarding",
+            "external number",
+            "Ringover",
+            "call center external"
+        ],
+        "confidence_score": 0.92
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "Comment intégrer WhatsApp à mon numéro Ringover pour l'utiliser comme WhatsApp Business?",
+        "answer": "Pour intégrer WhatsApp à votre numéro Ringover et l'utiliser comme WhatsApp Business, vous avez deux options : 1) Installez l'application WhatsApp Business sur votre téléphone, puis utilisez votre numéro Ringover pour configurer le compte. Lors de la vérification, choisissez l'option d'appel si l'option SMS ne fonctionne pas. 2) Utilisez l'intégration WhatsApp via le marketplace Ringover. Connectez-vous à votre tableau de bord Ringover, accédez à 'intégrations', trouvez WhatsApp, et suivez le processus d'inscription. Notez qu'il y a un délai d'activation de trois semaines à un mois pour la validation.",
+        "category": "product_question",
+        "tags": [
+            "WhatsApp",
+            "Ringover",
+            "WhatsApp Business",
+            "intégration",
+            "marketplace"
+        ],
+        "confidence_score": 0.92
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "Que faire si je ne reçois pas de sonorisation d'appels entrants sur l'application Ringover ?",
+        "answer": "Si vous ne recevez pas de sonorisation pour les appels entrants sur l'application Ringover, il se peut que les notifications soient bloquées. Pour résoudre ce problème, cliquez sur le petit cadenas à gauche de l'URL dans la barre d'adresse de votre navigateur lorsque vous êtes sur la web app. Dans les paramètres du site, assurez-vous que les notifications sont réglées sur 'Autoriser'. Après avoir effectué ce changement, actualisez la page pour que les modifications prennent effet.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "notifications",
+            "sonorisation",
+            "appels entrants",
+            "web app",
+            "cadenas",
+            "navigateur"
+        ],
+        "confidence_score": 0.92
+    },
+    {
+        "question": "How can I adjust my headset microphone settings to improve call quality on Ringover's web app?",
+        "answer": "To improve your microphone settings, navigate to the Ringover interface on your computer and locate the sound icon near the bottom-left corner. Click on it to open the sound settings, and select the tab labeled 'Microphone'. Ensure the 'Input Volume' is adequately set, and adjust it as needed. Moreover, ensure the correct input device is selected from the dropdown menu above the volume settings. If you're using a specific brand like Jabra, make sure it appears and is selected as the input device. Finally, test the microphone with a colleague or another phone to confirm the settings provide better sound quality.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "microphone",
+            "settings",
+            "web app",
+            "headset",
+            "call quality"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "Pourquoi mon téléphone ne sonne-t-il pas lorsque quelqu'un essaie de me rappeler après un appel passé depuis Ringover ?",
+        "answer": "Assurez-vous que le téléphone et le numéro que vous souhaitez configurer pour recevoir des appels sont correctement configurés dans le système Ringover. Vous pouvez tester chaque numéro individuellement en passant un appel masqué pour confirmer qu'il reçoit bien les appels entrants. Si un numéro ne sonne pas, vérifiez les paramètres de sonnerie de ce numéro spécifique. Parfois, un réajustement dans la configuration du standard peut résoudre le problème.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "sonnerie",
+            "numéro de téléphone",
+            "appels entrants",
+            "configuration",
+            "Ringover"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "How can I enable call recording playback for user calls in Ringover?",
+        "answer": "To enable call recording playback, first ensure that call recording is activated for the user. Go to the 'Configuration' section in your dashboard and select 'User'. Choose the desired user, then navigate to 'Permissions'. Under 'Recording and Monitoring', ensure that 'Record conversations' is checked. Once enabled, future calls will be recorded, and you can find the playback option in the call history.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "call recording",
+            "playback",
+            "permissions",
+            "dashboard",
+            "Ringover"
+        ],
+        "confidence_score": 0.95
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "Comment puis-je activer et gérer les autorisations d'écoute et de téléchargement des enregistrements d'appels sur Ringover ?",
+        "answer": "Pour activer et gérer les autorisations d'écoute et de téléchargement des enregistrements d'appels sur Ringover, accédez à la section des paramètres et sélectionnez l'utilisateur souhaité. Sous 'Permission', vérifiez l'option 'Écouter les enregistrements' et choisissez si l'utilisateur peut écouter tous les enregistrements, uniquement les siens, ou aucun. Pour les options de téléchargement, toujours dans 'Permission', allez dans la section 'Enregistrement et supervision' pour afficher ou cacher le bouton de téléchargement et contrôler si l'utilisateur peut télécharger ses enregistrements.",
+        "category": "product_question",
+        "tags": [
+            "enregistrement",
+            "permission",
+            "téléchargement",
+            "supervision"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "How can I enable call recording and access call recordings in Ringover?",
+        "answer": "To enable call recording, go to the dashboard, click on the 'Configuration' section (a gear icon), then 'Users'. Select the user you want to set up. In the 'Permissions' menu, check the 'Record Calls' option under the 'Recording and Supervision' section. To apply this setting to multiple users, toggle the option on and off, and you'll see an option to apply it to other users. After enabling recording, new calls will be recorded. To access recordings, go to 'Call History' on the left menu and find the recorded calls with a play icon next to the call details.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "call recording",
+            "Ringover",
+            "dashboard",
+            "user settings"
+        ],
+        "confidence_score": 0.92
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "How can I activate calls to Switzerland using Ringover?",
+        "answer": "To activate calls to Switzerland, ensure the 'special numbers and out-of-plan destinations' option is enabled for each user in the permissions settings within the Ringover dashboard. Additionally, you need to have sufficient credit for out-of-plan calls. You can purchase credit by going to the 'billing' section in the menu on the left of the dashboard and selecting 'buy credit'. Once you have credit, test by calling a Swiss number to verify it works.",
+        "category": "product_question",
+        "tags": [
+            "international calling",
+            "Switzerland",
+            "Ringover dashboard",
+            "permissions",
+            "out-of-plan calls"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "Comment faire pour que les appels continuent de sonner jusqu'à ce qu'un agent soit disponible sur le standard Ringover ?",
+        "answer": "Pour que les appels continuent de sonner jusqu'à ce qu'un agent puisse répondre, il faut d'abord accéder au tableau de bord Ringover et aller dans la section 'Standard vocaux'. Sélectionnez le standard concerné puis le scénario ouvert. Dans la partie file d'attente, cliquez sur l'icône paramètre. Assurez-vous que l'option 'passer à l'étape suivante si tous les agents sont occupés' est décochée. Réglez le temps d'attente maximum selon votre besoin, par exemple 10 minutes, pour permettre aux clients de rester en attente plus longtemps. Ne cochez pas l'option 'Demande de rappel'.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "file d'attente",
+            "standard",
+            "sonnerie continue",
+            "configuration"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "Comment configurer une file d'attente d'appels pour minimiser la perte d'appels chez Ringover ?",
+        "answer": "Pour configurer votre file d'attente d'appels afin de minimiser la perte d'appels, vous devez définir le temps d'attente maximum à 10 minutes et désactiver toute musique d'attente ou pause avant la sonnerie en réglant le délai à 0 seconde. Il est également recommandé d'opter pour une sonnerie en cascade, où un agent répond en premier et, s'il n'est pas disponible, l'appel passe à l'agent suivant. Assurez-vous également que les options comme la demande de rappel sont désactivées car elles peuvent ne pas être nécessaires. Pour sauvegarder ces réglages, revenez sur l'écran d'accueil et enregistrez les paramètres en bas à gauche.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "file d'attente",
+            "appels entrants",
+            "configuration",
+            "perte d'appels",
+            "sonnerie cascade"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "Comment modifier l'adresse e-mail de réception des codes de vérification dans le système Ringover ?",
+        "answer": "Pour modifier l'adresse e-mail de réception des codes de vérification, vous devez changer l'adresse e-mail associée au compte utilisateur. Cela peut être fait en mettant à jour l'adresse e-mail dans les paramètres du compte de l'utilisateur. Notez que les notifications comme les appels manqués seront également envoyées à cette nouvelle adresse. Après la mise à jour, assurez-vous que l'utilisateur se déconnecte et se reconnecte pour que les changements prennent effet, bien que le mot de passe reste inchangé.",
+        "category": "product_question",
+        "tags": [
+            "email",
+            "vérification",
+            "compte utilisateur",
+            "notification",
+            "connexion"
+        ],
+        "confidence_score": 0.9
+    },
+    {
+        "question": "Why am I unable to make calls, transfer calls, or answer/hang up calls using the Ringover application?",
+        "answer": "If you're experiencing issues with making calls, transferring calls, or handling calls on the Ringover application, ensure that you are using the proper version of the app. It may also help to check the settings and permissions. In this particular case, moving from the app to the web version resolved the issue, indicating that the application version might have been having temporary bugs.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "call issues",
+            "call transfer",
+            "call handling",
+            "Ringover application"
+        ],
+        "confidence_score": 0.85
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "How can I use Ringover when my Salesforce is disconnected due to technical issues?",
+        "answer": "If you experience a disconnection with Salesforce but still need to receive calls, you can use Ringover independently of Salesforce. Open a new browser tab and enter 'app.ringover.com'. This allows you to access Ringover even if Salesforce is unavailable. You will be able to receive calls, but Salesforce pages won’t open automatically until Salesforce is reconnected.",
+        "category": "troubleshooting_question",
+        "tags": [
+            "Ringover",
+            "Salesforce",
+            "disconnect",
+            "technical issues",
+            "receive calls"
+        ],
+        "confidence_score": 0.85
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    },
+    {
+        "question": "",
+        "answer": "",
+        "category": "",
+        "tags": null,
+        "confidence_score": 0
+    }
+]

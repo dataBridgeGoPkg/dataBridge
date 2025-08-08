@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
@@ -44,7 +43,6 @@ func GenerateOpenAIResponse(prompt string) string {
 
 	// Extract and return the response content
 	chatResponse := chatCompletion.Choices[0].Message.Content
-	fmt.Println("Chat Response:", chatResponse)
 
 	return chatResponse
 }

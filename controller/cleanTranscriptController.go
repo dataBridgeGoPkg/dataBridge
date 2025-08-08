@@ -26,19 +26,25 @@ type structuredData struct {
 }
 
 func GetCleanDataFromTranscriptDump(c *gin.Context) {
-	// Step 1 - Load JSON file
-	rawDataTranscript, err := ioutil.ReadFile("/Users/atmadeep.das/Desktop/Go_Product_RoadMap/transcript.json")
+
+	// Step 1 - Load JSON file (if you want to read file from the local)
+	rawTranscriptBody, err := ioutil.ReadFile("/Users/atmadeep.das/Desktop/Go_Product_RoadMap/transcript.json")
 	if err != nil {
 		log.Fatalf("Failed to read JSON file: %v", err)
 	}
 
+	// rawTranscriptBody, err := io.ReadAll(c.Request.Body)
+	// if err != nil {
+	// 	log.Fatalf("Failed to read request body: %v", err)
+	// }
+
 	var rawDataDump transcriptDump
-	if err := json.Unmarshal(rawDataTranscript, &rawDataDump); err != nil {
+	if err := json.Unmarshal(rawTranscriptBody, &rawDataDump); err != nil {
 		log.Fatalf("Failed to unmarshal JSON: %v", err)
 	}
 
-	// Step 2 - Collect prompts
-	var knowledgeBaseArray []string
+	// Step 2 - Collect structured entries
+	var structuredEntries []structuredData
 
 	for _, transcriptEntry := range rawDataDump.RingoTranscriptions {
 		transcript := transcriptEntry.FullConversation
@@ -49,18 +55,20 @@ func GetCleanDataFromTranscriptDump(c *gin.Context) {
 
 		promptText := prompt.OpenAIPrompt(transcript)
 
-		//Step 3 - Convert to structured data with OpenAI API
+		// Step 3 - Convert to structured data with OpenAI API
 		var structuredEntry structuredData
 
 		knowledgeBase := service.GenerateOpenAIResponse(promptText)
 
+		// Unmarshal into the expected structuredData format
 		if err := json.Unmarshal([]byte(knowledgeBase), &structuredEntry); err != nil {
 			log.Printf("Failed to unmarshal OpenAI response: %v", err)
 			continue
 		}
 
-		knowledgeBaseArray = append(knowledgeBaseArray, knowledgeBase)
+		// Only include responses that were properly structured
+		structuredEntries = append(structuredEntries, structuredEntry)
 	}
 
-	c.JSON(200, knowledgeBaseArray)
+	c.JSON(200, structuredEntries)
 }

@@ -17,14 +17,14 @@ type Person struct {
 }
 
 func ExampleTransform() {
-	in := `{"first-name":"Atmadeep","Age":"30","active":"true","address":{"City":"Paris"}}`
+	in := `{"first-name":"John","Age":"30","active":"true","address":{"City":"Paris"}}`
 	p, _ := databridge.Transform[Person](in)
 	fmt.Println(p.Address.City)
 	// Output: Paris
 }
 
 func ExampleTransformToStructUniversal() {
-	f := url.Values{"First_Name": {"Atmadeep"}, "Age": {"30"}, "Active": {"true"}, "address.city": {"Lyon"}}
+	f := url.Values{"First_Name": {"John"}, "Age": {"30"}, "Active": {"true"}, "address.city": {"Lyon"}}
 	var p Person
 	_ = databridge.TransformToStructUniversal(f, &p)
 	fmt.Println(p.Address.City)

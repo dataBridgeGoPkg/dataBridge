@@ -16,22 +16,22 @@ type Person struct {
 
 func TestJSONToStruct(t *testing.T) {
 	var p Person
-	in := `{"first-name":"Atmadeep","Age":"30","active":"true","address":{"City":"Paris"}}`
+	in := `{"first-name":"John","Age":"30","active":"true","address":{"City":"Paris"}}`
 	if err := TransformToStructUniversal(in, &p); err != nil {
 		t.Fatalf("json parse failed: %v", err)
 	}
-	if p.FirstName != "Atmadeep" || p.Age != 30 || p.Active != true || p.Address.City != "Paris" {
+	if p.FirstName != "John" || p.Age != 30 || p.Active != true || p.Address.City != "Paris" {
 		t.Fatalf("unexpected parsed result: %+v", p)
 	}
 }
 
 func TestFormDottedToStruct(t *testing.T) {
 	var p Person
-	f := url.Values{"First_Name": {"Atmadeep"}, "Age": {"30"}, "Active": {"true"}, "address.city": {"Lyon"}}
+	f := url.Values{"First_Name": {"John"}, "Age": {"30"}, "Active": {"true"}, "address.city": {"Lyon"}}
 	if err := TransformToStructUniversal(f, &p); err != nil {
 		t.Fatalf("form parse failed: %v", err)
 	}
-	if p.Address.City != "Lyon" || p.FirstName != "Atmadeep" {
+	if p.Address.City != "Lyon" || p.FirstName != "John" {
 		t.Fatalf("unexpected parsed form result: %+v", p)
 	}
 }
@@ -39,7 +39,7 @@ func TestFormDottedToStruct(t *testing.T) {
 func TestYAMLToStruct(t *testing.T) {
 	var p Person
 	y := `
-First_Name: Atmadeep
+First_Name: John
 Age: 30
 Active: true
 address:

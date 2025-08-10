@@ -45,13 +45,13 @@ type Person struct {
 
 func main() {
     // JSON string
-    in := `{"first-name":"Atmadeep","Age":"30","active":"true","address":{"City":"Paris"}}`
+    in := `{"first-name":"John","Age":"30","active":"true","address":{"City":"Paris"}}`
     p, err := databridge.Transform[Person](in)
     if err != nil { panic(err) }
     fmt.Printf("%+v\n", p)
 
     // URL form with dotted keys
-    f := url.Values{"First_Name": {"Atmadeep"}, "Age": {"30"}, "Active": {"true"}, "address.city": {"Lyon"}}
+    f := url.Values{"First_Name": {"John"}, "Age": {"30"}, "Active": {"true"}, "address.city": {"Lyon"}}
     var p2 Person
     if err := databridge.TransformToStructUniversal(f, &p2); err != nil { panic(err) }
 

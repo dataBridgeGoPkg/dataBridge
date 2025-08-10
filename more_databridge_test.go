@@ -619,10 +619,10 @@ func TestVeryDeepNestedMapJSON_60(t *testing.T) {
 func TestUserReportedPayloadMapping(t *testing.T) {
 	// User provided JSON array with varied key casings, separators, and mixed-type arrays
 	in := `[
-		{ "User.Details": { "First-Name": "Ada", "lastName": "Lovelace", "ignored": "x" }, "Demographic Details": { "AGE": "36", "Nationality": "British", "extra": true }, "email-ids": ["ada@example.com", "a.love@example.co.uk", ""], "phone_numbers": ["+44 20 7946 0018", 4479460018, { "type": "mobile", "value": "+44-7700-900123" }], "misc": { "notes": ["genius", null], "tags": ["math", "poet"] } },
-		{ "USER_DETAILS": { "first_name": "alan", "LAST_NAME": "Turing" }, "demographic-details": { "age": " 41 ", "NATIONALITY": "English" }, "EmailIds": ["alan@computing.org", "a.turing@bletchley.gov.uk"], "PHONE-NUMBERS": [ "+44-20-7000-0000", { "kind": "office", "ext": "123" }, 2070000000 ], "extra_top_level": { "foo": "bar" } },
-		{ "user_details": { "FIRST NAME": "grace", "last-name": "Hopper" }, "Demographic_Details": { "Age": 85, "nationality": "American" }, "EMAIL_IDS": [ "grace@example.mil", "ghopper@nvy.mil", " " ], "phone_numbers": [ "+1 (202) 555-0185", { "type": "fax", "value": "202-555-0199" }, 12025550185 ], "notes": "legend" }
-	]`
+        { "User.Details": { "First-Name": "Ada", "lastName": "Lovelace", "ignored": "x" }, "Demographic Details": { "AGE": "36", "Nationality": "British", "extra": true }, "email-ids": ["ada@example.com", "a.love@example.co.uk", ""], "phone_numbers": ["+44 20 7946 0018", 4479460018, { "type": "mobile", "value": "+44-7700-900123" }], "misc": { "notes": ["genius", null], "tags": ["math", "poet"] } },
+        { "USER_DETAILS": { "first_name": "alan", "LAST_NAME": "Turing" }, "demographic-details": { "age": " 41 ", "NATIONALITY": "English" }, "EmailIds": ["alan@computing.org", "a.turing@bletchley.gov.uk"], "PHONE-NUMBERS": [ "+44-20-7000-0000", { "kind": "office", "ext": "123" }, 2070000000 ], "extra_top_level": { "foo": "bar" } },
+        { "user_details": { "FIRST NAME": "grace", "last-name": "Hopper" }, "Demographic_Details": { "Age": 85, "nationality": "American" }, "EMAIL_IDS": [ "grace@example.mil", "ghopper@nvy.mil", " " ], "phone_numbers": [ "+1 (202) 555-0185", { "type": "fax", "value": "202-555-0199" }, 12025550185 ], "notes": "legend" }
+    ]`
 
 	type Name struct {
 		FirstName string `json:"first_name"`
@@ -665,4 +665,68 @@ func TestUserReportedPayloadMapping(t *testing.T) {
 	if !strings.Contains(out[0].PhoneNumbers[2], "+44-7700-900123") {
 		t.Fatalf("phone numbers coercion missing value field: %+v", out[0].PhoneNumbers)
 	}
+}
+
+func TestUserActualPayloadWithTypo(t *testing.T) {
+	// User's actual payload with "frist_name" typo
+	actualPayload := `[
+        { "User.Details": { "frist_name": "Ada", "last_name": "Lovelace", "ignored": "x" }, "Demographic Details": { "age": "36", "nationality": "British", "extra": true }, "email_ids": ["ada@example.com", "a.love@example.co.uk", ""], "phone_numbers": ["+44 20 7946 0018", 4479460018, { "type": "mobile", "value": "+44-7700-900123" }], "misc": { "notes": ["genius", null], "tags": ["math", "poet"] } },
+        { "USER_DETAILS": { "first_name": "alan", "LAST_NAME": "Turing" }, "demographic-details": { "age": " 41 ", "NATIONALITY": "English" }, "EmailIds": ["alan@computing.org", "a.turing@bletchley.gov.uk"], "PHONE-NUMBERS": [ "+44-20-7000-0000", { "kind": "office", "ext": "123" }, 2070000000 ], "extra_top_level": { "foo": "bar" } },
+        { "user_details": { "FIRST NAME": "grace", "last-name": "Hopper" }, "Demographic_Details": { "Age": 85, "nationality": "American" }, "EMAIL_IDS": [ "grace@example.mil", "ghopper@nvy.mil", " " ], "phone_numbers": [ "+1 (202) 555-0185", { "type": "fax", "value": "202-555-0199" }, 12025550185 ], "notes": "legend" }
+    ]`
+
+	type UserDetails struct {
+		FirstName string `json:"first_name"`
+		LastName  string `json:"last_name"`
+	}
+	type DemographicDetails struct {
+		Age         int    `json:"age"`
+		Nationality string `json:"nationality"`
+	}
+	type PersonalDetails struct {
+		UserDetails        UserDetails            `json:"user_details"`
+		DemographicDetails DemographicDetails     `json:"demographic_details"`
+		EmailIDs           []string               `json:"email_ids"`
+		PhoneNumbers       []string               `json:"phone_numbers"`
+		Misc               map[string]interface{} `json:"misc,omitempty"`
+		Notes              interface{}            `json:"notes,omitempty"`
+	}
+
+	t.Run("CorrectUsage_ArrayToSlice", func(t *testing.T) {
+		var people []PersonalDetails
+		if err := TransformToStructUniversal(actualPayload, &people); err != nil {
+			t.Fatalf("Array→Slice failed: %v", err)
+		}
+		if len(people) != 3 {
+			t.Fatalf("expected 3 people, got %d", len(people))
+		}
+		// First person should have empty first_name due to "frist_name" typo
+		if people[0].UserDetails.FirstName != "" {
+			t.Logf("Note: first_name is '%s' - 'frist_name' typo in source didn't map", people[0].UserDetails.FirstName)
+		}
+		if people[0].UserDetails.LastName != "Lovelace" {
+			t.Fatalf("expected Lovelace, got %s", people[0].UserDetails.LastName)
+		}
+		if people[0].DemographicDetails.Age != 36 {
+			t.Fatalf("expected age 36, got %d", people[0].DemographicDetails.Age)
+		}
+		if len(people[0].PhoneNumbers) < 3 {
+			t.Fatalf("expected 3+ phone numbers, got %d", len(people[0].PhoneNumbers))
+		}
+	})
+
+	t.Run("IncorrectUsage_ArrayToSingleStruct", func(t *testing.T) {
+		// This mimics the user's wrong usage - array into single struct
+		var singlePerson PersonalDetails
+		if err := TransformToStructUniversal(actualPayload, &singlePerson); err != nil {
+			t.Fatalf("Array→Single failed: %v", err)
+		}
+		// Should get first element only
+		if singlePerson.UserDetails.LastName != "Lovelace" {
+			t.Fatalf("expected Lovelace from first element, got %s", singlePerson.UserDetails.LastName)
+		}
+		t.Logf("Single struct result: first_name='%s', last_name='%s', age=%d",
+			singlePerson.UserDetails.FirstName, singlePerson.UserDetails.LastName,
+			singlePerson.DemographicDetails.Age)
+	})
 }

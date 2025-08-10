@@ -1,6 +1,7 @@
 package databridge
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -182,7 +183,17 @@ func coerceValueForType(v interface{}, t reflect.Type) interface{} {
 			if name, ok := x["name"]; ok {
 				return coerceValueForType(name, reflect.TypeOf(""))
 			}
-			// Fallback: best-effort string via %#v
+			// Try other common field names
+			if phone, ok := x["phone"]; ok {
+				return coerceValueForType(phone, reflect.TypeOf(""))
+			}
+			if ext, ok := x["ext"]; ok {
+				return coerceValueForType(ext, reflect.TypeOf(""))
+			}
+			// Fallback: JSON-encode the object for readable string representation
+			if jsonBytes, err := json.Marshal(x); err == nil {
+				return string(jsonBytes)
+			}
 			return fmt.Sprintf("%v", x)
 		default:
 			return fmt.Sprintf("%v", v)

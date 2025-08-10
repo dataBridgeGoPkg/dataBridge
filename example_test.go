@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/atmadeep/databridge"
+	databridge "github.com/dataBridgeGoPkg/dataBridge"
 )
 
 type Person struct {

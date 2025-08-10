@@ -1,6 +1,6 @@
 # DataBridge: flexible input-to-struct transformer for Go
 
-[![CI](https://github.com/atmadeep/databridge/actions/workflows/ci.yml/badge.svg)](https://github.com/atmadeep/databridge/actions/workflows/ci.yml)
+[![CI](https://github.com/dataBridgeGoPkg/dataBridge/actions/workflows/ci.yml/badge.svg)](https://github.com/dataBridgeGoPkg/dataBridge/actions/workflows/ci.yml)
 
 DataBridge helps you accept many input shapes (JSON, strings, URL-encoded forms, CSV, best-effort YAML) and map them into your own structs or slices with minimal fuss. It also offers JSON output helpers.
 Status: library-only package.
@@ -17,7 +17,7 @@ Replace the module path with your published path when you push this repo.
 
 ```bash
 # in your project
-go get github.com/atmadeep/databridge
+go get github.com/dataBridgeGoPkg/dataBridge
 ```
 
 Go 1.21+ (CI tests 1.21/1.22/1.23).
@@ -31,7 +31,7 @@ import (
     "fmt"
     "net/url"
 
-    "github.com/atmadeep/databridge"
+    "github.com/dataBridgeGoPkg/dataBridge"
 )
 
 type Person struct {

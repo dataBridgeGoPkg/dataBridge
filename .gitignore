@@ -1,2 +1,22 @@
+# macOS
+.DS_Store
+
+# Go build/test artifacts
+bin/
+build/
+dist/
+*.test
+coverage.out
+*.coverprofile
+
+# Logs and temp
+*.log
+tmp/
+
+# Env and secrets
 .env
-help.txt
+.env.*
+
+# Editors/IDE
+.vscode/
+.idea/

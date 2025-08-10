@@ -1,6 +1,7 @@
 package databridge
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -148,10 +149,48 @@ func coerceValueForType(v interface{}, t reflect.Type) interface{} {
 		}
 	}
 	switch t.Kind() {
+	case reflect.String:
+		if v == nil {
+			return ""
+		}
+		switch x := v.(type) {
+		case string:
+			return x
+		case int64:
+			return strconv.FormatInt(x, 10)
+		case uint64:
+			return strconv.FormatUint(x, 10)
+		case float64:
+			// avoid trailing .0 for whole numbers
+			if x == float64(int64(x)) {
+				return strconv.FormatInt(int64(x), 10)
+			}
+			return strconv.FormatFloat(x, 'f', -1, 64)
+		case bool:
+			return strconv.FormatBool(x)
+		case map[string]interface{}:
+			// Prefer common key names when converting an object to string
+			if val, ok := x["value"]; ok {
+				return coerceValueForType(val, reflect.TypeOf(""))
+			}
+			if num, ok := x["number"]; ok {
+				return coerceValueForType(num, reflect.TypeOf(""))
+			}
+			if id, ok := x["id"]; ok {
+				return coerceValueForType(id, reflect.TypeOf(""))
+			}
+			if name, ok := x["name"]; ok {
+				return coerceValueForType(name, reflect.TypeOf(""))
+			}
+			// Fallback: best-effort string via %#v
+			return fmt.Sprintf("%v", x)
+		default:
+			return fmt.Sprintf("%v", v)
+		}
 	case reflect.Bool:
 		switch x := v.(type) {
 		case string:
-			if b, err := strconv.ParseBool(x); err == nil {
+			if b, err := strconv.ParseBool(strings.TrimSpace(x)); err == nil {
 				return b
 			}
 		}
@@ -159,7 +198,7 @@ func coerceValueForType(v interface{}, t reflect.Type) interface{} {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		switch x := v.(type) {
 		case string:
-			if i, err := strconv.ParseInt(x, 10, 64); err == nil {
+			if i, err := strconv.ParseInt(strings.TrimSpace(x), 10, 64); err == nil {
 				// return as int64; json will fit into desired int size on unmarshal
 				return i
 			}
@@ -170,7 +209,7 @@ func coerceValueForType(v interface{}, t reflect.Type) interface{} {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		switch x := v.(type) {
 		case string:
-			if u, err := strconv.ParseUint(x, 10, 64); err == nil {
+			if u, err := strconv.ParseUint(strings.TrimSpace(x), 10, 64); err == nil {
 				return u
 			}
 		case float64:
@@ -183,7 +222,7 @@ func coerceValueForType(v interface{}, t reflect.Type) interface{} {
 	case reflect.Float32, reflect.Float64:
 		switch x := v.(type) {
 		case string:
-			if f, err := strconv.ParseFloat(x, 64); err == nil {
+			if f, err := strconv.ParseFloat(strings.TrimSpace(x), 64); err == nil {
 				return f
 			}
 		case int64:

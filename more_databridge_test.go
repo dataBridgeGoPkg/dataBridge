@@ -615,3 +615,54 @@ func TestVeryDeepNestedMapJSON_60(t *testing.T) {
 		t.Fatalf("unexpected deep val: %v", cur["val"])
 	}
 }
+
+func TestUserReportedPayloadMapping(t *testing.T) {
+	// User provided JSON array with varied key casings, separators, and mixed-type arrays
+	in := `[
+		{ "User.Details": { "First-Name": "Ada", "lastName": "Lovelace", "ignored": "x" }, "Demographic Details": { "AGE": "36", "Nationality": "British", "extra": true }, "email-ids": ["ada@example.com", "a.love@example.co.uk", ""], "phone_numbers": ["+44 20 7946 0018", 4479460018, { "type": "mobile", "value": "+44-7700-900123" }], "misc": { "notes": ["genius", null], "tags": ["math", "poet"] } },
+		{ "USER_DETAILS": { "first_name": "alan", "LAST_NAME": "Turing" }, "demographic-details": { "age": " 41 ", "NATIONALITY": "English" }, "EmailIds": ["alan@computing.org", "a.turing@bletchley.gov.uk"], "PHONE-NUMBERS": [ "+44-20-7000-0000", { "kind": "office", "ext": "123" }, 2070000000 ], "extra_top_level": { "foo": "bar" } },
+		{ "user_details": { "FIRST NAME": "grace", "last-name": "Hopper" }, "Demographic_Details": { "Age": 85, "nationality": "American" }, "EMAIL_IDS": [ "grace@example.mil", "ghopper@nvy.mil", " " ], "phone_numbers": [ "+1 (202) 555-0185", { "type": "fax", "value": "202-555-0199" }, 12025550185 ], "notes": "legend" }
+	]`
+
+	type Name struct {
+		FirstName string `json:"first_name"`
+		LastName  string `json:"last_name"`
+	}
+	type Demographic struct {
+		Age         int    `json:"age"`
+		Nationality string `json:"nationality"`
+	}
+	type Row struct {
+		UserDetails        Name        `json:"user_details"`
+		DemographicDetails Demographic `json:"demographic_details"`
+		EmailIDs           []string    `json:"email_ids"`
+		PhoneNumbers       []string    `json:"phone_numbers"`
+		// allow passthrough extras without failing
+		Misc map[string]interface{} `json:"misc"`
+	}
+
+	var out []Row
+	if err := TransformToStructUniversal(in, &out); err != nil {
+		t.Fatalf("failed to transform reported payload: %v", err)
+	}
+	if len(out) != 3 {
+		t.Fatalf("expected 3 rows, got %d", len(out))
+	}
+	// Check first element mapping
+	if out[0].UserDetails.FirstName != "Ada" || out[0].UserDetails.LastName != "Lovelace" {
+		t.Fatalf("name mapping failed: %+v", out[0].UserDetails)
+	}
+	if out[0].DemographicDetails.Age != 36 || out[0].DemographicDetails.Nationality != "British" {
+		t.Fatalf("demographic mapping failed: %+v", out[0].DemographicDetails)
+	}
+	if len(out[0].EmailIDs) < 2 || out[0].EmailIDs[0] != "ada@example.com" {
+		t.Fatalf("email ids mapping failed: %+v", out[0].EmailIDs)
+	}
+	// Phone numbers should coerce to strings from mixed types
+	if len(out[0].PhoneNumbers) < 3 {
+		t.Fatalf("phone numbers length unexpected: %+v", out[0].PhoneNumbers)
+	}
+	if !strings.Contains(out[0].PhoneNumbers[2], "+44-7700-900123") {
+		t.Fatalf("phone numbers coercion missing value field: %+v", out[0].PhoneNumbers)
+	}
+}

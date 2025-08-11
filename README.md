@@ -115,4 +115,4 @@ go test -fuzz=Fuzz -fuzztime=10s
 ```
 
 ## License
-MIT (or your preferred license).
+MIT

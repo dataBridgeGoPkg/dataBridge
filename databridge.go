@@ -8,13 +8,12 @@ import (
 	"io"
 	"net/url"
 	"reflect"
-	"regexp"
+	"time"
 )
 
 var (
 	ErrUnsupportedInput = errors.New("databridge: unsupported input type")
 	ErrDecodeFailed     = errors.New("databridge: failed to decode input into target")
-	defaultNormalizeRe  = regexp.MustCompile(`[^a-z0-9]`)
 )
 
 // Config and options ---------------------------------------------------------
@@ -26,6 +25,8 @@ type config struct {
 	Logger          func(format string, args ...interface{})
 	AllowNumberConv bool
 	KeyNormalizer   func(string) string
+	// internal hint to enable cache for default normalizer
+	isDefaultKeyNormalizer bool
 }
 
 type Option func(*config)
@@ -51,7 +52,11 @@ func WithNumberConversion(enabled bool) Option {
 }
 
 func WithKeyNormalizer(fn func(string) string) Option {
-	return func(c *config) { c.KeyNormalizer = fn }
+	return func(c *config) {
+		c.KeyNormalizer = fn
+		// mark as non-default when user supplies a custom fn
+		c.isDefaultKeyNormalizer = false
+	}
 }
 
 // Public API ----------------------------------------------------------------
@@ -92,6 +97,8 @@ func TransformToStructUniversal(input interface{}, output interface{}, opts ...O
 		Logger:          func(string, ...interface{}) {},
 		AllowNumberConv: true,
 		KeyNormalizer:   defaultNormalizer,
+		// default path uses our built-in normalizer
+		isDefaultKeyNormalizer: true,
 	}
 	for _, o := range opts {
 		o(cfg)
@@ -108,15 +115,37 @@ func TransformToStructUniversal(input interface{}, output interface{}, opts ...O
 
 	switch v := input.(type) {
 	case string:
-		intermediateMap, intermediateArr, err = parseBytesDetect([]byte(v), cfg)
+		b := []byte(v)
+		if !cfg.NormalizeKeys && isLikelyJSON(b) {
+			if ok, ferr := fastJSONIntoOutput(b, outV, cfg); ok {
+				return ferr
+			}
+		}
+		intermediateMap, intermediateArr, err = parseBytesDetect(b, cfg)
 	case []byte:
+		if !cfg.NormalizeKeys && isLikelyJSON(v) {
+			if ok, ferr := fastJSONIntoOutput(v, outV, cfg); ok {
+				return ferr
+			}
+		}
 		intermediateMap, intermediateArr, err = parseBytesDetect(v, cfg)
 	case *bytes.Buffer:
-		intermediateMap, intermediateArr, err = parseBytesDetect(v.Bytes(), cfg)
+		b := v.Bytes()
+		if !cfg.NormalizeKeys && isLikelyJSON(b) {
+			if ok, ferr := fastJSONIntoOutput(b, outV, cfg); ok {
+				return ferr
+			}
+		}
+		intermediateMap, intermediateArr, err = parseBytesDetect(b, cfg)
 	case io.Reader:
 		b, rerr := io.ReadAll(v)
 		if rerr != nil {
 			return fmt.Errorf("databridge: read error: %w", rerr)
+		}
+		if !cfg.NormalizeKeys && isLikelyJSON(b) {
+			if ok, ferr := fastJSONIntoOutput(b, outV, cfg); ok {
+				return ferr
+			}
 		}
 		intermediateMap, intermediateArr, err = parseBytesDetect(b, cfg)
 	case url.Values:
@@ -242,6 +271,46 @@ func TransformToStructUniversal(input interface{}, output interface{}, opts ...O
 	return nil
 }
 
+// isLikelyJSON performs a quick check for JSON payloads ('{' or '[' after trimming spaces/BOM).
+func isLikelyJSON(b []byte) bool {
+	// strip potential UTF-8 BOM
+	if len(b) >= 3 && b[0] == 0xEF && b[1] == 0xBB && b[2] == 0xBF {
+		b = b[3:]
+	}
+	// trim leading spaces
+	i := 0
+	for i < len(b) && (b[i] == ' ' || b[i] == '\n' || b[i] == '\r' || b[i] == '\t') {
+		i++
+	}
+	if i >= len(b) {
+		return false
+	}
+	c := b[i]
+	return c == '{' || c == '['
+}
+
+// fastJSONIntoOutput tries to decode JSON directly into the output type to bypass mapping when possible.
+// Returns (handled, err). When handled is true, caller should return err.
+func fastJSONIntoOutput(b []byte, outV reflect.Value, cfg *config) (bool, error) {
+	// Only attempt direct decode when key normalization isn't required
+	// or when the payload already matches struct tags; unknown fields will fail in Strict mode.
+	// We optimistically try; on failure we signal not handled so the slower path can run.
+	// Create a fresh value of the output element type to avoid partially mutating caller's value on failure.
+	outElem := outV.Elem()
+	outElemType := outElem.Type()
+	tmpPtr := reflect.New(outElemType)
+	dec := json.NewDecoder(bytes.NewReader(b))
+	if cfg.Strict {
+		dec.DisallowUnknownFields()
+	}
+	if err := dec.Decode(tmpPtr.Interface()); err != nil {
+		return false, nil
+	}
+	// success: set into caller's output
+	outElem.Set(tmpPtr.Elem())
+	return true, nil
+}
+
 // Transform is a generic convenience wrapper that returns a value of type T.
 // Example: user := databridge.Transform[User](formOrJSON)
 func Transform[T any](input interface{}, opts ...Option) (T, error) {
@@ -268,4 +337,49 @@ func TransformToJSON(input interface{}, outputPtr interface{}, opts ...Option) (
 		return nil, err
 	}
 	return json.Marshal(outputPtr)
+}
+
+// FromJSON decodes JSON bytes into T using the fastest path (no key normalization),
+// honoring Strict mode if provided via options.
+// Use when your payload keys already match your struct json tags.
+func FromJSON[T any](b []byte, opts ...Option) (T, error) {
+	// force normalization off to enable the fast path
+	opts = append(opts, WithKeyNormalization(false))
+	var out T
+	if err := TransformToStructUniversal(b, &out, opts...); err != nil {
+		var zero T
+		return zero, err
+	}
+	return out, nil
+}
+
+// FromJSONString is a convenience wrapper over FromJSON.
+func FromJSONString[T any](s string, opts ...Option) (T, error) {
+	return FromJSON[T]([]byte(s), opts...)
+}
+
+//go:generate go run ./cmd/databridge-gen -types User,Order -out zz_databridge_gen.go
+
+// Sample domain structs for generator demo.
+type User struct {
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Active    bool      `json:"active"`
+	Tags      []string  `json:"tags"`
+	CreatedAt time.Time `json:"created_at"`
+	Address   struct {
+		Line1 string `json:"line1"`
+		City  string `json:"city"`
+		Zip   string `json:"zip"`
+	} `json:"address"`
+}
+
+type Order struct {
+	OrderID   string    `json:"order_id"`
+	UserID    int64     `json:"user_id"`
+	Amount    float64   `json:"amount"`
+	Paid      bool      `json:"paid"`
+	Items     []string  `json:"items"`
+	CreatedAt time.Time `json:"created_at"`
 }

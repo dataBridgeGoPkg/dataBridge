@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+	"sync"
 )
 
 // formValuesToMapWithDots converts url.Values to a nested map, handling dotted keys like "address.city".
@@ -159,13 +160,27 @@ func mapToStructKeysRecursive(in map[string]interface{}, typ reflect.Type, cfg *
 	return out, unmatched
 }
 
+var (
+	fieldLookupCache sync.Map // key: fieldCacheKey -> map[string]fieldInfo
+)
+
+type fieldCacheKey struct {
+	t       reflect.Type
+	hasNorm bool
+}
+
 func buildFieldLookup(typ reflect.Type, normalizer func(string) string) map[string]fieldInfo {
+	// Use the underlying (non-pointer) type for caching identity
 	out := map[string]fieldInfo{}
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
 	}
 	if typ.Kind() != reflect.Struct {
 		return out
+	}
+	key := fieldCacheKey{t: typ, hasNorm: normalizer != nil}
+	if cached, ok := fieldLookupCache.Load(key); ok {
+		return cached.(map[string]fieldInfo)
 	}
 	for i := 0; i < typ.NumField(); i++ {
 		f := typ.Field(i)
@@ -197,5 +212,11 @@ func buildFieldLookup(typ reflect.Type, normalizer func(string) string) map[stri
 			out[norm2] = out[norm]
 		}
 	}
-	return out
+	// store a copy to avoid accidental mutation
+	copied := make(map[string]fieldInfo, len(out))
+	for k, v := range out {
+		copied[k] = v
+	}
+	fieldLookupCache.Store(key, copied)
+	return copied
 }

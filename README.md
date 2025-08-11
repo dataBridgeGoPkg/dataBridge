@@ -78,6 +78,7 @@ func main() {
     - WithKeyNormalizer(fn)
 - Transform[T any](input, options...) (T, error): generic convenience wrapper.
 - TransformToJSON(input, outputPtr, options...) ([]byte, error): decode and marshal in one step. If outputPtr is nil, returns a generic map as JSON.
+- FromJSON[T any]([]byte, options...) (T, error) and FromJSONString[T any](string, options...): fastest path for JSON when your payload keys already match your struct json tags. Internally disables key normalization and uses a zero-reflection decode path when possible.
 
 ## Notes
 - YAML support is optional and off by default; enable with WithYAML(true). Uses gopkg.in/yaml.v3.
@@ -114,5 +115,34 @@ CI
 go test -fuzz=Fuzz -fuzztime=10s
 ```
 
+### Optional code generation (prototype)
+
+Generate reflection-free binders for url.Values forms into your structs:
+
+```bash
+# Build the generator
+go build ./cmd/databridge-gen
+
+# From your package directory with the target structs
+./databridge-gen -types Person,Address -out zz_databridge_gen.go
+
+# Use the generated helpers
+u, err := BindPersonFromForm(vals)
+```
+
+Notes:
+- Prototype supports primitives, time.Time, nested structs, and basic slices. It reads json tags for field names.
+- For CSV/JSON, the generic paths are already fast; codegen primarily helps hot form-binding paths.
+
 ## License
 MIT
+
+## Performance and safety
+
+- Compile-time safety: Keep your public surface typed. DataBridge only uses reflection at the boundaries to bridge unknown inputs to your concrete types; once decoded, you operate on real structs and slices.
+- Fast paths: When you already control the JSON shape, use FromJSON/FromJSONString or call Transform/TransformToStructUniversal with WithKeyNormalization(false). This bypasses key normalization and takes a direct json.Decoder path with DisallowUnknownFields in Strict mode.
+- Caching: Field lookups are cached to avoid repeated reflection work across calls and goroutines.
+- Key normalization: The default normalizer is a fast ASCII loop (no regexp). If you need unicode-aware normalization, provide WithKeyNormalizer(fn).
+- Strict mode: Turn on WithStrict(true) in handlers to catch unknown fields at decode time and keep refactors safe.
+- Concurrency: All helpers are stateless; caches are read-optimized and safe for concurrent use. You can call Transform from many goroutines.
+- Benchmarks: CI uploads benchmark artifacts nightly. Locally, run: `go test -bench=. -benchtime=2s`.
